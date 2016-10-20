@@ -2,7 +2,7 @@ defmodule BadMammaJamma.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "rooms:*", BadMammaJamma.RoomChannel
+  channel "jam:*", BadMammaJamma.JamChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

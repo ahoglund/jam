@@ -1,0 +1,57 @@
+var _user$project$Track$init = F4(
+	function (id, cells, name, sample_file) {
+		return {id: id, name: name, sample_file: sample_file, cells: cells};
+	});
+var _user$project$Track$defaultTracks = function (total_cells) {
+	return _elm_lang$core$Native_List.fromArray(
+		[
+			A4(
+			_user$project$Track$init,
+			1,
+			A2(
+				_elm_lang$core$List$map,
+				function (cell_id) {
+					return A2(_user$project$Cell$init, cell_id, 1);
+				},
+				total_cells),
+			'Kick',
+			'samples/kick.wav'),
+			A4(
+			_user$project$Track$init,
+			2,
+			A2(
+				_elm_lang$core$List$map,
+				function (cell_id) {
+					return A2(_user$project$Cell$init, cell_id, 2);
+				},
+				total_cells),
+			'Snare',
+			'samples/snare.wav'),
+			A4(
+			_user$project$Track$init,
+			3,
+			A2(
+				_elm_lang$core$List$map,
+				function (cell_id) {
+					return A2(_user$project$Cell$init, cell_id, 3);
+				},
+				total_cells),
+			'HH Closed',
+			'samples/hh-closed.wav'),
+			A4(
+			_user$project$Track$init,
+			4,
+			A2(
+				_elm_lang$core$List$map,
+				function (cell_id) {
+					return A2(_user$project$Cell$init, cell_id, 4);
+				},
+				total_cells),
+			'HH Open',
+			'samples/hh-open.wav')
+		]);
+};
+var _user$project$Track$Track = F4(
+	function (a, b, c, d) {
+		return {id: a, name: b, sample_file: c, cells: d};
+	});

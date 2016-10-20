@@ -17,7 +17,7 @@ config :bad_mamma_jamma, BadMammaJamma.Endpoint,
 config :bad_mamma_jamma, BadMammaJamma.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg|wav|mp3)$},
       ~r{priv/gettext/.*(po)$},
       ~r{web/views/.*(ex)$},
       ~r{web/templates/.*(eex)$}

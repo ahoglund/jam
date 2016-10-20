@@ -1,0 +1,8 @@
+var _user$project$Cell$init = F2(
+	function (id, track_id) {
+		return {id: id, track_id: track_id, is_active: false};
+	});
+var _user$project$Cell$Cell = F3(
+	function (a, b, c) {
+		return {is_active: a, track_id: b, id: c};
+	});

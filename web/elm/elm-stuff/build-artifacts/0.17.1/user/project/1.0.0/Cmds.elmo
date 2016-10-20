@@ -1,0 +1,8 @@
+var _user$project$Cmds$playRawSound = _elm_lang$core$Native_Platform.outgoingPort(
+	'playRawSound',
+	function (v) {
+		return v;
+	});
+var _user$project$Cmds$playSound = function (file) {
+	return _user$project$Cmds$playRawSound(file);
+};

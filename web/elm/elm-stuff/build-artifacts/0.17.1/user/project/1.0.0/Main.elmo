@@ -1,0 +1,476 @@
+var _user$project$Main$interval = function (model) {
+	return 0.5 / _elm_lang$core$Basics$toFloat(model.bpm);
+};
+var _user$project$Main$setActiveClass = F2(
+	function (beat_id, current_beat) {
+		var _p0 = current_beat;
+		if (_p0.ctor === 'Nothing') {
+			return 'inactive';
+		} else {
+			return _elm_lang$core$Native_Utils.eq(beat_id, _p0._0) ? 'active' : 'inactive';
+		}
+	});
+var _user$project$Main$setActiveCell = F2(
+	function (track, beat) {
+		return (_elm_lang$core$Native_Utils.eq(beat.is_active, true) && _elm_lang$core$Native_Utils.eq(beat.track_id, track.id)) ? 'success' : '';
+	});
+var _user$project$Main$stepEditorTableHeader = function (model) {
+	return A2(
+		_elm_lang$html$Html$tr,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		A2(
+			_elm_lang$core$List$append,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$th,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[]))
+				]),
+			A2(
+				_elm_lang$core$List$map,
+				function (beat_id) {
+					return A2(
+						_elm_lang$html$Html$th,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text(
+								_elm_lang$core$Basics$toString(beat_id))
+							]));
+				},
+				_elm_lang$core$Native_List.range(1, model.total_beats))));
+};
+var _user$project$Main$stepEditorHeader = A2(
+	_elm_lang$html$Html$h3,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			_elm_lang$html$Html$text('Drum Sequence Editor')
+		]));
+var _user$project$Main$toggleCell = F3(
+	function (track, cell1, cell2) {
+		return (_elm_lang$core$Native_Utils.eq(track.id, cell2.track_id) && _elm_lang$core$Native_Utils.eq(cell1.id, cell2.id)) ? (_elm_lang$core$Native_Utils.eq(cell1.is_active, true) ? _elm_lang$core$Native_Utils.update(
+			cell1,
+			{is_active: false}) : _elm_lang$core$Native_Utils.update(
+			cell1,
+			{is_active: true})) : cell1;
+	});
+var _user$project$Main$playSounds = F2(
+	function (model, current_beat) {
+		var _p1 = current_beat;
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Native_List.fromArray(
+				[_elm_lang$core$Platform_Cmd$none]);
+		} else {
+			return _elm_lang$core$List$concat(
+				A2(
+					_elm_lang$core$List$map,
+					function (track) {
+						return A2(
+							_elm_lang$core$List$map,
+							function (cell) {
+								return (cell.is_active && _elm_lang$core$Native_Utils.eq(_p1._0, cell.id)) ? _user$project$Cmds$playSound(track.sample_file) : _elm_lang$core$Platform_Cmd$none;
+							},
+							track.cells);
+					},
+					model.tracks));
+		}
+	});
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'UpdateBpm':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{bpm: _p2._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'PlaySound':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Cmds$playSound(_p2._0)
+				};
+			case 'ToggleCell':
+				var tracks = A2(
+					_elm_lang$core$List$map,
+					function (t) {
+						var new_cells = A2(
+							_elm_lang$core$List$map,
+							function (b) {
+								return A3(_user$project$Main$toggleCell, t, b, _p2._1);
+							},
+							t.cells);
+						return _elm_lang$core$Native_Utils.update(
+							t,
+							{cells: new_cells});
+					},
+					model.tracks);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{tracks: tracks}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SetCurrentBeat':
+				var _p3 = model.current_beat;
+				if (_p3.ctor === 'Nothing') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								current_beat: _elm_lang$core$Maybe$Just(1)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$batch(
+							A2(
+								_user$project$Main$playSounds,
+								model,
+								_elm_lang$core$Maybe$Just(1)))
+					};
+				} else {
+					var _p4 = _p3._0;
+					return _elm_lang$core$Native_Utils.eq(_p4, model.total_beats) ? {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								current_beat: _elm_lang$core$Maybe$Just(1)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$batch(
+							A2(
+								_user$project$Main$playSounds,
+								model,
+								_elm_lang$core$Maybe$Just(1)))
+					} : {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								current_beat: _elm_lang$core$Maybe$Just(_p4 + 1)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$batch(
+							A2(
+								_user$project$Main$playSounds,
+								model,
+								_elm_lang$core$Maybe$Just(_p4 + 1)))
+					};
+				}
+			case 'Play':
+				return _elm_lang$core$Native_Utils.eq(model.is_playing, true) ? {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							current_beat: _elm_lang$core$Maybe$Just(1)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$batch(
+						A2(
+							_user$project$Main$playSounds,
+							model,
+							_elm_lang$core$Maybe$Just(1)))
+				} : {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{is_playing: true}),
+					_1: _elm_lang$core$Platform_Cmd$batch(
+						A2(_user$project$Main$playSounds, model, model.current_beat))
+				};
+			default:
+				return _elm_lang$core$Native_Utils.eq(model.is_playing, false) ? {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{current_beat: _elm_lang$core$Maybe$Nothing, is_playing: false}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				} : {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{is_playing: false}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
+var _user$project$Main$beatCount = _elm_lang$core$Native_List.range(1, 16);
+var _user$project$Main$initModel = function (tracks) {
+	return {
+		tracks: tracks,
+		total_beats: _elm_lang$core$List$length(_user$project$Main$beatCount),
+		bpm: 120,
+		is_playing: false,
+		current_beat: _elm_lang$core$Maybe$Nothing
+	};
+};
+var _user$project$Main$init = function () {
+	var model = _user$project$Main$initModel(
+		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
+	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+}();
+var _user$project$Main$Model = F5(
+	function (a, b, c, d, e) {
+		return {tracks: a, total_beats: b, current_beat: c, is_playing: d, bpm: e};
+	});
+var _user$project$Main$Stop = {ctor: 'Stop'};
+var _user$project$Main$Play = {ctor: 'Play'};
+var _user$project$Main$ToggleCell = F2(
+	function (a, b) {
+		return {ctor: 'ToggleCell', _0: a, _1: b};
+	});
+var _user$project$Main$stepEditorCell = F3(
+	function (model, track, beat) {
+		return A2(
+			_elm_lang$html$Html$td,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$id(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'track-',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(track.id),
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'-cell-',
+								_elm_lang$core$Basics$toString(beat.id))))),
+					_elm_lang$html$Html_Attributes$class(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						A2(_user$project$Main$setActiveClass, beat.id, model.current_beat),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							' ',
+							A2(_user$project$Main$setActiveCell, track, beat)))),
+					_elm_lang$html$Html_Events$onClick(
+					A2(_user$project$Main$ToggleCell, track, beat))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[]));
+	});
+var _user$project$Main$PlaySound = function (a) {
+	return {ctor: 'PlaySound', _0: a};
+};
+var _user$project$Main$stepEditorTrack = F2(
+	function (model, track) {
+		var preview_cell = A2(
+			_elm_lang$html$Html$td,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('sample')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$button,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('btn'),
+							_elm_lang$html$Html_Events$onClick(
+							_user$project$Main$PlaySound(track.sample_file))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$span,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-play')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[]))
+						])),
+					_elm_lang$html$Html$text(track.name)
+				]));
+		return A2(
+			_elm_lang$html$Html$tr,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			A2(
+				_elm_lang$core$List$append,
+				_elm_lang$core$Native_List.fromArray(
+					[preview_cell]),
+				A2(
+					_elm_lang$core$List$map,
+					function (beat) {
+						return A3(_user$project$Main$stepEditorCell, model, track, beat);
+					},
+					track.cells)));
+	});
+var _user$project$Main$stepEditorTracks = function (model) {
+	return A2(
+		_elm_lang$html$Html$tbody,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		A2(
+			_elm_lang$core$List$map,
+			function (track) {
+				return A2(_user$project$Main$stepEditorTrack, model, track);
+			},
+			model.tracks));
+};
+var _user$project$Main$stepEditor = function (model) {
+	return A2(
+		_elm_lang$html$Html$table,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('table table-hover table-bordered')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_user$project$Main$stepEditorTableHeader(model),
+				_user$project$Main$stepEditorTracks(model)
+			]));
+};
+var _user$project$Main$stepEditorSection = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('page-header')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_user$project$Main$stepEditorHeader,
+				_user$project$Main$stepEditor(model)
+			]));
+};
+var _user$project$Main$UpdateBpm = function (a) {
+	return {ctor: 'UpdateBpm', _0: a};
+};
+var _user$project$Main$buttons = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn btn-success'),
+						_elm_lang$html$Html_Events$onClick(_user$project$Main$Play)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$span,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-play')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[]))
+					])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn btn-danger'),
+						_elm_lang$html$Html_Events$onClick(_user$project$Main$Stop)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$span,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-stop')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[]))
+					])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn btn-default')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(model.bpm))
+					])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn btn-default'),
+						_elm_lang$html$Html_Events$onClick(
+						_user$project$Main$UpdateBpm(model.bpm + 1))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$span,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-arrow-up')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[]))
+					])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn btn-default'),
+						_elm_lang$html$Html_Events$onClick(
+						_user$project$Main$UpdateBpm(model.bpm - 1))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$span,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-arrow-down')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[]))
+					]))
+			]));
+};
+var _user$project$Main$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('container')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_user$project$Main$stepEditorSection(model),
+				_user$project$Main$buttons(model)
+			]));
+};
+var _user$project$Main$SetCurrentBeat = function (a) {
+	return {ctor: 'SetCurrentBeat', _0: a};
+};
+var _user$project$Main$subscriptions = function (model) {
+	var _p5 = model.is_playing;
+	if (_p5 === true) {
+		return A2(
+			_elm_lang$core$Time$every,
+			_elm_lang$core$Time$minute * _user$project$Main$interval(model),
+			_user$project$Main$SetCurrentBeat);
+	} else {
+		return _elm_lang$core$Platform_Sub$none;
+	}
+};
+var _user$project$Main$main = {
+	main: _elm_lang$html$Html_App$program(
+		{init: _user$project$Main$init, subscriptions: _user$project$Main$subscriptions, update: _user$project$Main$update, view: _user$project$Main$view})
+};

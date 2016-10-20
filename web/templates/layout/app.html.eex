@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Hello BadMammaJamma!</title>
+    <title>Bad Mamma Jamma</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
@@ -15,9 +15,6 @@
     <div class="container">
       <header class="header">
         <nav role="navigation">
-          <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
-          </ul>
         </nav>
         <span class="logo"></span>
       </header>
@@ -30,6 +27,7 @@
       </main>
 
     </div> <!-- /container -->
+    <script src="<%= static_path(@conn, "/js/vendor/jquery-3.1.0.min.js") %>"></script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
