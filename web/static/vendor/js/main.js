@@ -8363,6 +8363,14 @@ var _user$project$Cmds$playRawSound = _elm_lang$core$Native_Platform.outgoingPor
 var _user$project$Cmds$playSound = function (file) {
 	return _user$project$Cmds$playRawSound(file);
 };
+var _user$project$Cmds$playRawSynth = _elm_lang$core$Native_Platform.outgoingPort(
+	'playRawSynth',
+	function (v) {
+		return v;
+	});
+var _user$project$Cmds$playSynth = function (freq) {
+	return _user$project$Cmds$playRawSynth(freq);
+};
 
 var _user$project$Track$init = F4(
 	function (id, cells, name, sample_file) {

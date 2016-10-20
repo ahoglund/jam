@@ -1,6 +1,5 @@
 import mixer from './mixer';
-const appDiv = document.querySelector('#app-container');
-const app = Elm.Main.embed(appDiv);
+import elmApp from "./elm_app"
 
 function getSample(sample_file) {
   var request = new XMLHttpRequest();
@@ -23,6 +22,6 @@ function playSound(file) {
   getSample(file);
 }
 
-app.ports.playRawSound.subscribe(function (file) {
+elmApp.ports.playRawSound.subscribe(function (file) {
   playSound(file);
 });
