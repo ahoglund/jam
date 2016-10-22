@@ -26,9 +26,6 @@ type alias Model =
   , phxSocket : Phoenix.Socket.Socket Msg
   , bpm : Int }
 
-type alias TrackUpdate =
-   List Track
-
 socketServer : String
 socketServer =
   "ws://localhost:4000/socket/websocket"
@@ -37,7 +34,7 @@ initPhxSocket : Phoenix.Socket.Socket Msg
 initPhxSocket =
   Phoenix.Socket.init socketServer
     |> Phoenix.Socket.withDebug
-    |> Phoenix.Socket.on "update_tracks" jamChannelName ReceiveTrackUpdate
+    |> Phoenix.Socket.on "update_tracks" jamChannelName ReceiveCellUpdate
 
 initModel : List Track -> Model
 initModel tracks =
@@ -56,39 +53,29 @@ beatCount : List Int
 beatCount =
   [1..16]
 
-decodeTracks : JD.Decoder TrackUpdate
-decodeTracks =
-  JD.list decodeTrack
+type alias CellUpdate =
+  { cell_id : Int
+  , track_id : Int
+  , is_active : Bool
+  }
 
-decodeTrack : JD.Decoder Track
-decodeTrack =
-  JD.object4 Track
-    ("id" := JD.int)
-    ("name" := JD.string)
-    ("sample_file" := JD.string)
-    ("cells" := decodeCells)
-
-decodeCells : JD.Decoder (List Cell)
-decodeCells =
-   JD.list decodeCell
-
-decodeCell : JD.Decoder Cell
-decodeCell =
-  JD.object3 Cell
-    ("is_active" := JD.bool)
+decodeCellUpdate : JD.Decoder CellUpdate
+decodeCellUpdate =
+  JD.object3 CellUpdate
+    ("cell_id" := JD.int)
     ("track_id" := JD.int)
-    ("id" := JD.int)
+    ("is_active" := JD.bool)
 
 type Msg
   = SetCurrentBeat Time
   | UpdateBpm Int
   | PlaySound String
-  | ToggleCell Track Cell
+  | ToggleCell Cell
   | Play
   | Stop
   | PhoenixMsg (Phoenix.Socket.Msg Msg)
-  | ReceiveTrackUpdate JE.Value
-  | SendTrackUpdate
+  | ReceiveCellUpdate JE.Value
+  | SendCellUpdate Int Int Bool
   | PlaySynth String
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -101,9 +88,13 @@ update msg model =
         ( { model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-    SendTrackUpdate ->
+    SendCellUpdate cell_id track_id is_active ->
       let
-        payload = (JE.bool True)
+        payload = (JE.object [
+          ("cell_id", JE.int cell_id)
+        , ("track_id", JE.int track_id)
+        , ("is_active", JE.bool is_active) ])
+
         push' =
           Phoenix.Push.init "update_tracks" jamChannelName
             |> Phoenix.Push.withPayload payload
@@ -112,17 +103,13 @@ update msg model =
         ( { model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-    ReceiveTrackUpdate raw ->
-      case JD.decodeValue decodeTracks raw of
+    ReceiveCellUpdate raw ->
+      case JD.decodeValue decodeCellUpdate raw of
         Ok tracks ->
           ( { model | tracks = tracks }
           , Cmd.none
           )
         Err err ->
-          let
-            _ =
-              Debug.log "Error decoding song: " err
-          in
             (model, Cmd.none)
     UpdateBpm bpm ->
       ({ model | bpm = bpm }, Cmd.none)
@@ -130,12 +117,12 @@ update msg model =
       (model, Cmds.playSound(file))
     PlaySynth key ->
       (model, Cmds.playSynth(440.0))
-    ToggleCell track beat ->
+    ToggleCell cell ->
       let
         tracks = model.tracks
         |> List.map (\t ->
           let
-            new_cells = List.map (\b -> toggleCell t b beat) t.cells
+            new_cells = List.map (\c -> toggleCell t c cell) t.cells
           in
           ({ t | cells = new_cells })
         )
@@ -180,8 +167,8 @@ playSounds model current_beat =
       |> List.concat
 
 toggleCell : Track -> Cell -> Cell -> Cell
-toggleCell track cell1 cell2 =
-  if track.id == cell2.track_id && cell1.id == cell2.id  then
+toggleCell track cell1 toggled_cell =
+  if track.id == toggled_cell.track_id && cell1.id == toggled_cell.id  then
     if cell1.is_active == True then
       ({ cell1 | is_active = False })
     else
@@ -232,15 +219,15 @@ stepEditorTrack model track =
       ]
   in
     track.cells
-    |> List.map (\beat -> stepEditorCell model track beat)
+    |> List.map (\cell -> stepEditorCell model track cell)
     |> List.append [preview_cell]
     |> tr []
 
 stepEditorCell : Model -> Track -> Cell -> Html Msg
-stepEditorCell model track beat =
-  td [ id ("track-" ++ (toString track.id) ++ "-cell-" ++ (toString beat.id))
-     , class ((setActiveClass beat.id model.current_beat) ++ " " ++ (setActiveCell track beat))
-     , onClick (ToggleCell track beat)] []
+stepEditorCell model track cell =
+  td [ id ("track-" ++ (toString track.id) ++ "-cell-" ++ (toString cell.id))
+     , class ((setActiveClass cell.id model.current_beat) ++ " " ++ (setActiveCell track cell))
+     , onClick (ToggleCell cell)] []
 
 setActiveCell : Track -> Cell -> String
 setActiveCell track beat =
@@ -250,12 +237,12 @@ setActiveCell track beat =
     ""
 
 setActiveClass : Int -> Maybe Int -> String
-setActiveClass beat_id current_beat =
+setActiveClass cell_id current_beat =
   case current_beat of
     Nothing ->
       "inactive"
     Just beat ->
-      if beat_id == beat then
+      if cell_id == beat then
         "active"
       else
         "inactive"
@@ -287,7 +274,7 @@ subscriptions model =
     True ->
       Sub.batch [
         Time.every (Time.minute * (interval model)) SetCurrentBeat,
-        Phoenix.Socket.listen model.phxSocket PhoenixMsg,
+        Phoenix.Socket.listen model.phxSocket PhoenixMsg
       ]
     False ->
       Sub.none
