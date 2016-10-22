@@ -24,6 +24,11 @@ export class BasicSynth {
     return this.dest
   }
 
+  play_frequency(freq) {
+    this.osc.frequency(freq);
+    this.note_on();
+  }
+
   note_on() {
     this.volume_on()
   }

@@ -82,10 +82,105 @@ var _user$project$Main$playSounds = F2(
 					model.tracks));
 		}
 	});
+var _user$project$Main$decodeCell = A4(
+	_elm_lang$core$Json_Decode$object3,
+	_user$project$Cell$Cell,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'is_active', _elm_lang$core$Json_Decode$bool),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'track_id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int));
+var _user$project$Main$decodeCells = _elm_lang$core$Json_Decode$list(_user$project$Main$decodeCell);
+var _user$project$Main$decodeTrack = A5(
+	_elm_lang$core$Json_Decode$object4,
+	_user$project$Track$Track,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'sample_file', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'cells', _user$project$Main$decodeCells));
+var _user$project$Main$decodeTracks = _elm_lang$core$Json_Decode$list(_user$project$Main$decodeTrack);
+var _user$project$Main$beatCount = _elm_lang$core$Native_List.range(1, 16);
+var _user$project$Main$jamChannelName = 'jam:room';
+var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
+var _user$project$Main$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {tracks: a, total_beats: b, current_beat: c, is_playing: d, phxSocket: e, bpm: f};
+	});
+var _user$project$Main$PlaySynth = function (a) {
+	return {ctor: 'PlaySynth', _0: a};
+};
+var _user$project$Main$SendTrackUpdate = {ctor: 'SendTrackUpdate'};
+var _user$project$Main$ReceiveTrackUpdate = function (a) {
+	return {ctor: 'ReceiveTrackUpdate', _0: a};
+};
+var _user$project$Main$initPhxSocket = A4(
+	_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+	'update_tracks',
+	_user$project$Main$jamChannelName,
+	_user$project$Main$ReceiveTrackUpdate,
+	_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer)));
+var _user$project$Main$initModel = function (tracks) {
+	return {
+		tracks: tracks,
+		total_beats: _elm_lang$core$List$length(_user$project$Main$beatCount),
+		bpm: 120,
+		is_playing: false,
+		phxSocket: _user$project$Main$initPhxSocket,
+		current_beat: _elm_lang$core$Maybe$Nothing
+	};
+};
+var _user$project$Main$init = function () {
+	var model = _user$project$Main$initModel(
+		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
+	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+}();
+var _user$project$Main$PhoenixMsg = function (a) {
+	return {ctor: 'PhoenixMsg', _0: a};
+};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p2 = msg;
 		switch (_p2.ctor) {
+			case 'PhoenixMsg':
+				var _p3 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p2._0, model.phxSocket);
+				var phxSocket = _p3._0;
+				var phxCmd = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'SendTrackUpdate':
+				var payload = _elm_lang$core$Json_Encode$bool(true);
+				var push$ = A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+					payload,
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'update_tracks', _user$project$Main$jamChannelName));
+				var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push$, model.phxSocket);
+				var phxSocket = _p4._0;
+				var phxCmd = _p4._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'ReceiveTrackUpdate':
+				var _p5 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeTracks, _p2._0);
+				if (_p5.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{tracks: _p5._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					var _p6 = A2(_elm_lang$core$Debug$log, 'Error decoding song: ', _p5._0);
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
 			case 'UpdateBpm':
 				return {
 					ctor: '_Tuple2',
@@ -99,6 +194,12 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: model,
 					_1: _user$project$Cmds$playSound(_p2._0)
+				};
+			case 'PlaySynth':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Cmds$playSynth(440.0)
 				};
 			case 'ToggleCell':
 				var tracks = A2(
@@ -123,8 +224,8 @@ var _user$project$Main$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'SetCurrentBeat':
-				var _p3 = model.current_beat;
-				if (_p3.ctor === 'Nothing') {
+				var _p7 = model.current_beat;
+				if (_p7.ctor === 'Nothing') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -139,8 +240,8 @@ var _user$project$Main$update = F2(
 								_elm_lang$core$Maybe$Just(1)))
 					};
 				} else {
-					var _p4 = _p3._0;
-					return _elm_lang$core$Native_Utils.eq(_p4, model.total_beats) ? {
+					var _p8 = _p7._0;
+					return _elm_lang$core$Native_Utils.eq(_p8, model.total_beats) ? {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
@@ -157,13 +258,13 @@ var _user$project$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								current_beat: _elm_lang$core$Maybe$Just(_p4 + 1)
+								current_beat: _elm_lang$core$Maybe$Just(_p8 + 1)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$batch(
 							A2(
 								_user$project$Main$playSounds,
 								model,
-								_elm_lang$core$Maybe$Just(_p4 + 1)))
+								_elm_lang$core$Maybe$Just(_p8 + 1)))
 					};
 				}
 			case 'Play':
@@ -202,25 +303,6 @@ var _user$project$Main$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
-	});
-var _user$project$Main$beatCount = _elm_lang$core$Native_List.range(1, 16);
-var _user$project$Main$initModel = function (tracks) {
-	return {
-		tracks: tracks,
-		total_beats: _elm_lang$core$List$length(_user$project$Main$beatCount),
-		bpm: 120,
-		is_playing: false,
-		current_beat: _elm_lang$core$Maybe$Nothing
-	};
-};
-var _user$project$Main$init = function () {
-	var model = _user$project$Main$initModel(
-		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
-	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-}();
-var _user$project$Main$Model = F5(
-	function (a, b, c, d, e) {
-		return {tracks: a, total_beats: b, current_beat: c, is_playing: d, bpm: e};
 	});
 var _user$project$Main$Stop = {ctor: 'Stop'};
 var _user$project$Main$Play = {ctor: 'Play'};
@@ -393,9 +475,10 @@ var _user$project$Main$buttons = function (model) {
 							[]))
 					])),
 				A2(
-				_elm_lang$html$Html$button,
+				_elm_lang$html$Html$input,
 				_elm_lang$core$Native_List.fromArray(
 					[
+						_elm_lang$html$Html_Attributes$disabled(true),
 						_elm_lang$html$Html_Attributes$class('btn btn-default')
 					]),
 				_elm_lang$core$Native_List.fromArray(
@@ -460,12 +543,23 @@ var _user$project$Main$SetCurrentBeat = function (a) {
 	return {ctor: 'SetCurrentBeat', _0: a};
 };
 var _user$project$Main$subscriptions = function (model) {
-	var _p5 = model.is_playing;
-	if (_p5 === true) {
-		return A2(
-			_elm_lang$core$Time$every,
-			_elm_lang$core$Time$minute * _user$project$Main$interval(model),
-			_user$project$Main$SetCurrentBeat);
+	var _p9 = model.is_playing;
+	if (_p9 === true) {
+		return _elm_lang$core$Platform_Sub$batch(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$core$Time$every,
+					_elm_lang$core$Time$minute * _user$project$Main$interval(model),
+					_user$project$Main$SetCurrentBeat),
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg),
+					_elm_lang$keyboard$Keyboard$presses(
+					function (code) {
+						return _user$project$Main$PlaySynth(
+							_elm_lang$core$Basics$toString(
+								_elm_lang$core$Char$fromCode(code)));
+					})
+				]));
 	} else {
 		return _elm_lang$core$Platform_Sub$none;
 	}

@@ -18,5 +18,5 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-import socket from "./socket"
 import sound_player from "./sound_player"
+import jam from "./jam"

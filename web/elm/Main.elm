@@ -9,13 +9,35 @@ import String
 import Track exposing (..)
 import Cell exposing (..)
 import Cmds exposing (..)
+import Phoenix.Socket
+import Phoenix.Channel
+import Phoenix.Push
+import Json.Encode as JE
+import Json.Decode as JD exposing ((:=))
+import Dict
+import Keyboard
+import Char
 
 type alias Model =
   { tracks : List Track
   , total_beats : Int
   , current_beat : Maybe Int
   , is_playing : Bool
+  , phxSocket : Phoenix.Socket.Socket Msg
   , bpm : Int }
+
+type alias TrackUpdate =
+   List Track
+
+socketServer : String
+socketServer =
+  "ws://localhost:4000/socket/websocket"
+
+initPhxSocket : Phoenix.Socket.Socket Msg
+initPhxSocket =
+  Phoenix.Socket.init socketServer
+    |> Phoenix.Socket.withDebug
+    |> Phoenix.Socket.on "update_tracks" jamChannelName ReceiveTrackUpdate
 
 initModel : List Track -> Model
 initModel tracks =
@@ -23,26 +45,91 @@ initModel tracks =
   , total_beats = List.length beatCount
   , bpm = 120
   , is_playing = False
+  , phxSocket = initPhxSocket
   , current_beat = Nothing }
+
+jamChannelName : String
+jamChannelName =
+  "jam:room"
 
 beatCount : List Int
 beatCount =
   [1..16]
 
-type Msg = SetCurrentBeat Time
+decodeTracks : JD.Decoder TrackUpdate
+decodeTracks =
+  JD.list decodeTrack
+
+decodeTrack : JD.Decoder Track
+decodeTrack =
+  JD.object4 Track
+    ("id" := JD.int)
+    ("name" := JD.string)
+    ("sample_file" := JD.string)
+    ("cells" := decodeCells)
+
+decodeCells : JD.Decoder (List Cell)
+decodeCells =
+   JD.list decodeCell
+
+decodeCell : JD.Decoder Cell
+decodeCell =
+  JD.object3 Cell
+    ("is_active" := JD.bool)
+    ("track_id" := JD.int)
+    ("id" := JD.int)
+
+type Msg
+  = SetCurrentBeat Time
   | UpdateBpm Int
   | PlaySound String
   | ToggleCell Track Cell
   | Play
   | Stop
+  | PhoenixMsg (Phoenix.Socket.Msg Msg)
+  | ReceiveTrackUpdate JE.Value
+  | SendTrackUpdate
+  | PlaySynth String
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
+    PhoenixMsg msg ->
+      let
+        ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket
+      in
+        ( { model | phxSocket = phxSocket }
+        , Cmd.map PhoenixMsg phxCmd
+        )
+    SendTrackUpdate ->
+      let
+        payload = (JE.bool True)
+        push' =
+          Phoenix.Push.init "update_tracks" jamChannelName
+            |> Phoenix.Push.withPayload payload
+        (phxSocket, phxCmd) = Phoenix.Socket.push push' model.phxSocket
+      in
+        ( { model | phxSocket = phxSocket }
+        , Cmd.map PhoenixMsg phxCmd
+        )
+    ReceiveTrackUpdate raw ->
+      case JD.decodeValue decodeTracks raw of
+        Ok tracks ->
+          ( { model | tracks = tracks }
+          , Cmd.none
+          )
+        Err err ->
+          let
+            _ =
+              Debug.log "Error decoding song: " err
+          in
+            (model, Cmd.none)
     UpdateBpm bpm ->
       ({ model | bpm = bpm }, Cmd.none)
     PlaySound file ->
       (model, Cmds.playSound(file))
+    PlaySynth key ->
+      (model, Cmds.playSynth(440.0))
     ToggleCell track beat ->
       let
         tracks = model.tracks
@@ -181,7 +268,7 @@ buttons model =
       [ span [ class "glyphicon glyphicon-play" ] [] ],
     button [ class "btn btn-danger" , onClick Stop ]
       [ span [ class "glyphicon glyphicon-stop" ] [] ],
-    button [ class "btn btn-default"] [ text (toString model.bpm)],
+    input [ disabled True, class "btn btn-default"] [ text (toString model.bpm)],
     button [ class "btn btn-default" , onClick (UpdateBpm (model.bpm + 1))]
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
     button [ class "btn btn-default" , onClick (UpdateBpm (model.bpm - 1))]
@@ -198,7 +285,10 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   case model.is_playing of
     True ->
-      Time.every (Time.minute * (interval model)) SetCurrentBeat
+      Sub.batch [
+        Time.every (Time.minute * (interval model)) SetCurrentBeat,
+        Phoenix.Socket.listen model.phxSocket PhoenixMsg,
+      ]
     False ->
       Sub.none
 
