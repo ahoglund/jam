@@ -1,0 +1,27 @@
+
+  | ReceiveCellUpdate JE.Value
+  | SendCellUpdate Int Int Bool
+
+    SendCellUpdate cell_id track_id is_active ->
+      let
+        payload = (JE.object [
+          ("cell_id", JE.int cell_id)
+        , ("track_id", JE.int track_id)
+        , ("is_active", JE.bool is_active) ])
+
+        push' =
+          Phoenix.Push.init "update_tracks" jamChannelName
+            |> Phoenix.Push.withPayload payload
+        (phxSocket, phxCmd) = Phoenix.Socket.push push' model.phxSocket
+      in
+        ( { model | phxSocket = phxSocket }
+        , Cmd.map PhoenixMsg phxCmd
+        )
+    ReceiveCellUpdate raw ->
+      case JD.decodeValue decodeCellUpdate raw of
+        Ok tracks ->
+          ( { model | tracks = tracks }
+          , Cmd.none
+          )
+        Err err ->
+            (model, Cmd.none)

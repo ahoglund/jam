@@ -34,7 +34,7 @@ initPhxSocket : Phoenix.Socket.Socket Msg
 initPhxSocket =
   Phoenix.Socket.init socketServer
     |> Phoenix.Socket.withDebug
-    |> Phoenix.Socket.on "update_tracks" jamChannelName ReceiveCellUpdate
+    |> Phoenix.Socket.on "metronome_tick" jamChannelName ReceiveMetronomeTick
 
 initModel : List Track -> Model
 initModel tracks =
@@ -74,9 +74,8 @@ type Msg
   | Play
   | Stop
   | PhoenixMsg (Phoenix.Socket.Msg Msg)
-  | ReceiveCellUpdate JE.Value
-  | SendCellUpdate Int Int Bool
   | PlaySynth String
+  | ReceiveMetronomeTick
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -88,23 +87,8 @@ update msg model =
         ( { model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-    SendCellUpdate cell_id track_id is_active ->
-      let
-        payload = (JE.object [
-          ("cell_id", JE.int cell_id)
-        , ("track_id", JE.int track_id)
-        , ("is_active", JE.bool is_active) ])
-
-        push' =
-          Phoenix.Push.init "update_tracks" jamChannelName
-            |> Phoenix.Push.withPayload payload
-        (phxSocket, phxCmd) = Phoenix.Socket.push push' model.phxSocket
-      in
-        ( { model | phxSocket = phxSocket }
-        , Cmd.map PhoenixMsg phxCmd
-        )
-    ReceiveCellUpdate raw ->
-      case JD.decodeValue decodeCellUpdate raw of
+    ReceiveMetronomeTick ->
+      case JD.decodeValue decodeMetronomeTick raw of
         Ok tracks ->
           ( { model | tracks = tracks }
           , Cmd.none
