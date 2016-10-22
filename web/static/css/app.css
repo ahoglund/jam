@@ -1,7 +1,13 @@
 /* Space out content a bit */
 body, form, ul, table {
+  padding-top: 50px;
   margin-top: 20px;
   margin-bottom: 20px;
+  background-color: #f3f4f6;
+}
+
+.navbar-inverse {
+  background-color: #000209;
 }
 
 /* Phoenix flash messages */
@@ -163,6 +169,6 @@ td.sample {
   width: 120px;
 }
 
-button {
+.btn {
   margin-right: 4px;
 }

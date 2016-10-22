@@ -2,7 +2,7 @@ defmodule BadMammaJamma.JamChannel do
   use BadMammaJamma.Web, :channel
 
   def join("jam:room", _message, socket) do
-    :timer.send_interval(1_000, :metronome_tick)
+    :timer.send_interval(333, :metronome_tick)
     {:ok, socket}
   end
 

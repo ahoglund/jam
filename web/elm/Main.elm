@@ -100,9 +100,9 @@ update msg model =
       case JD.decodeValue decodeMetronomeTick raw of
         Ok metronome ->
           let
-            current_beat = setCurrentBeat model metronome.tick
+            current_beat = setCurrentBeat model
           in
-          ({model | current_beat = current_beat }, Cmd.batch (playSounds model current_beat))
+          ({ model | current_beat = current_beat }, Cmd.batch (playSounds model current_beat))
         Err err ->
           (model, Cmd.none)
     UpdateBpm bpm ->
@@ -140,26 +140,32 @@ update msg model =
         , Cmd.map PhoenixMsg phxCmd
         )
     Play ->
-      if model.is_playing == True then
-        ({ model | current_beat = Just 1 }, Cmd.batch (playSounds model (Just 1)) )
-      else
-        ({ model | is_playing = True }, Cmd.batch (playSounds model (model.current_beat)) )
+      let
+        current_beat = setCurrentBeat model
+      in
+        if model.is_playing == True then
+          ({ model | current_beat = current_beat }, Cmd.batch (playSounds model current_beat) )
+        else
+          ({ model | is_playing = True }, Cmd.batch (playSounds model current_beat) )
     Stop ->
-      if model.is_playing == False then
-        ({ model | current_beat = Nothing, is_playing = False }, Cmd.none )
-      else
-        ({ model | is_playing = False }, Cmd.none )
+      ({ model | current_beat = Nothing, is_playing = False }, Cmd.none )
 
-setCurrentBeat : Model -> Int -> Maybe Int
-setCurrentBeat model tick =
+setCurrentBeat : Model -> Maybe Int
+setCurrentBeat model =
   case model.current_beat of
     Nothing ->
-      (Just 1)
-    Just beat ->
-      if beat == model.total_beats then
+      if model.is_playing == True then
         (Just 1)
       else
-        (Just (beat + 1))
+        (Nothing)
+    Just beat ->
+      if model.is_playing == True then
+        if beat == model.total_beats then
+          (Just 1)
+        else
+          (Just (beat + 1))
+      else
+        (Nothing)
 
 playSounds : Model -> Maybe Int -> List (Cmd msg)
 playSounds model current_beat =
@@ -191,13 +197,13 @@ toggleCell track cell1 toggled_cell =
 
 stepEditorSection : Model -> Html Msg
 stepEditorSection model =
-  div [ class "page-header" ]
-    [ stepEditorHeader,
-      stepEditor model ]
+  div [ class "sequencer" ]
+     [ stepEditorHeader
+     , stepEditor model]
 
 stepEditorHeader : Html Msg
 stepEditorHeader =
-  h3 [] [ text ("Drum Sequence Editor") ]
+  h3 [] [ text ("Sequencer") ]
 
 stepEditor : Model -> Html Msg
 stepEditor model =
@@ -218,28 +224,28 @@ stepEditorTracks model =
   |> List.map (\track -> stepEditorTrack model track)
   |> tbody []
 
+pads : Track -> Html Msg
+pads track =
+  td []
+    [
+     button [ class "btn", onClick (PlaySound track.sample_file)]
+       [
+         span [ class "glyphicon glyphicon-play" ] []
+       ],
+     text track.name
+    ]
+
 stepEditorTrack : Model -> Track -> Html Msg
 stepEditorTrack model track =
-  let
-  preview_cell =
-    td [ class "sample"]
-      [
-       button [ class "btn", onClick (PlaySound track.sample_file)]
-         [
-           span [ class "glyphicon glyphicon-play" ] []
-         ],
-       text track.name
-      ]
-  in
-    track.cells
+  track.cells
     |> List.map (\cell -> stepEditorCell model track cell)
-    |> List.append [preview_cell]
+    |> List.append [ td [class "sample"] [ span [] [text track.name ]]]
     |> tr []
 
 stepEditorCell : Model -> Track -> Cell -> Html Msg
 stepEditorCell model track cell =
   td [ id ("track-" ++ (toString track.id) ++ "-cell-" ++ (toString cell.id))
-     , class ((setActiveClass cell.id model.current_beat) ++ " " ++ (setActiveCell track cell))
+     , class ((setActiveClass cell.id model) ++ " " ++ (setActiveCell track cell))
      , onClick (ToggleCell cell)] []
 
 setActiveCell : Track -> Cell -> String
@@ -249,13 +255,13 @@ setActiveCell track beat =
   else
     ""
 
-setActiveClass : Int -> Maybe Int -> String
-setActiveClass cell_id current_beat =
-  case current_beat of
+setActiveClass : Int -> Model -> String
+setActiveClass cell_id model =
+  case model.current_beat of
     Nothing ->
       "inactive"
     Just beat ->
-      if cell_id == beat then
+      if model.is_playing == True && cell_id == beat then
         "active"
       else
         "inactive"
@@ -268,13 +274,14 @@ buttons model =
       [ span [ class "glyphicon glyphicon-play" ] [] ],
     button [ class "btn btn-danger", onClick Stop ]
       [ span [ class "glyphicon glyphicon-stop" ] [] ],
-    input [ disabled True, class "btn btn-default"] [ text (toString model.bpm)],
+    p [ class "btn btn-default", onClick(UpdateBpm 120)] [ text ( "BPM: " ++ toString model.bpm)],
     button [ class "btn btn-default", onClick (UpdateBpm (model.bpm + 1))]
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
     button [ class "btn btn-default", onClick (UpdateBpm (model.bpm - 1))]
       [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
     button [ class "btn btn-default", onClick JoinChannel ] [ text "Join channel" ],
-    button [ class "btn btn-default", onClick LeaveChannel ] [ text "Leave channel" ]
+    button [ class "btn btn-default", onClick LeaveChannel ] [ text "Leave channel" ],
+    p [] [ text (toString model) ]
   ]
 
 view : Model -> Html Msg
@@ -285,13 +292,9 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  case model.is_playing of
-    True ->
-      Sub.batch [
-        Phoenix.Socket.listen model.phxSocket PhoenixMsg
-      ]
-    False ->
-      Sub.none
+  Sub.batch [
+    Phoenix.Socket.listen model.phxSocket PhoenixMsg
+  ]
 
 interval : Model -> Float
 interval model =
