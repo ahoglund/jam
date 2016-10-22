@@ -15,7 +15,7 @@ import Phoenix.Push
 import Json.Encode as JE exposing (..)
 import Json.Decode as JD exposing (..)
 import Dict
-import Keyboard
+import Keys
 import Char
 
 type alias Model =
@@ -59,13 +59,13 @@ type alias CellUpdate =
   , is_active : Bool
   }
 
-type alias MetronomeTick =
-  { metronome_tick : Int }
+type alias Metronome =
+  { tick : Int }
 
-decodeMetronomeTick : JD.Decoder MetronomeTick
+decodeMetronomeTick : JD.Decoder Metronome
 decodeMetronomeTick =
-  JD.object1 MetronomeTick
-    ("metronome_tick" := JD.int)
+  JD.object1 Metronome
+    ("tick" := JD.int)
 
 decodeCellUpdate : JD.Decoder CellUpdate
 decodeCellUpdate =
@@ -75,8 +75,7 @@ decodeCellUpdate =
     ("is_active" := JD.bool)
 
 type Msg
-  = SetCurrentBeat Time
-  | UpdateBpm Int
+  = UpdateBpm Int
   | PlaySound String
   | ToggleCell Cell
   | Play
@@ -99,8 +98,11 @@ update msg model =
         )
     ReceiveMetronomeTick raw ->
       case JD.decodeValue decodeMetronomeTick raw of
-        Ok tracks ->
-          (model, Cmd.none)
+        Ok metronome ->
+          let
+            current_beat = setCurrentBeat model metronome.tick
+          in
+          ({model | current_beat = current_beat }, Cmd.batch (playSounds model current_beat))
         Err err ->
           (model, Cmd.none)
     UpdateBpm bpm ->
@@ -130,7 +132,6 @@ update msg model =
         ({ model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-
     LeaveChannel ->
       let
         (phxSocket, phxCmd) = Phoenix.Socket.leave jamChannelName model.phxSocket
@@ -138,15 +139,6 @@ update msg model =
         ({ model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-    SetCurrentBeat time ->
-      case model.current_beat of
-        Nothing ->
-          ({ model | current_beat = (Just 1) }, Cmd.batch (playSounds model ((Just 1))))
-        Just beat ->
-          if beat == model.total_beats then
-            ({ model | current_beat = (Just 1) }, Cmd.batch (playSounds model ((Just 1))))
-          else
-            ({ model | current_beat = Just (beat + 1) }, Cmd.batch (playSounds model (Just (beat + 1))))
     Play ->
       if model.is_playing == True then
         ({ model | current_beat = Just 1 }, Cmd.batch (playSounds model (Just 1)) )
@@ -157,6 +149,17 @@ update msg model =
         ({ model | current_beat = Nothing, is_playing = False }, Cmd.none )
       else
         ({ model | is_playing = False }, Cmd.none )
+
+setCurrentBeat : Model -> Int -> Maybe Int
+setCurrentBeat model tick =
+  case model.current_beat of
+    Nothing ->
+      (Just 1)
+    Just beat ->
+      if beat == model.total_beats then
+        (Just 1)
+      else
+        (Just (beat + 1))
 
 playSounds : Model -> Maybe Int -> List (Cmd msg)
 playSounds model current_beat =
@@ -261,15 +264,17 @@ buttons : Model -> Html Msg
 buttons model =
   div []
   [
-    button [ class "btn btn-success" , onClick Play ]
+    button [ class "btn btn-success", onClick Play ]
       [ span [ class "glyphicon glyphicon-play" ] [] ],
-    button [ class "btn btn-danger" , onClick Stop ]
+    button [ class "btn btn-danger", onClick Stop ]
       [ span [ class "glyphicon glyphicon-stop" ] [] ],
     input [ disabled True, class "btn btn-default"] [ text (toString model.bpm)],
-    button [ class "btn btn-default" , onClick (UpdateBpm (model.bpm + 1))]
+    button [ class "btn btn-default", onClick (UpdateBpm (model.bpm + 1))]
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
-    button [ class "btn btn-default" , onClick (UpdateBpm (model.bpm - 1))]
-      [ span [ class "glyphicon glyphicon-arrow-down" ] [] ]
+    button [ class "btn btn-default", onClick (UpdateBpm (model.bpm - 1))]
+      [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
+    button [ class "btn btn-default", onClick JoinChannel ] [ text "Join channel" ],
+    button [ class "btn btn-default", onClick LeaveChannel ] [ text "Leave channel" ]
   ]
 
 view : Model -> Html Msg
@@ -283,7 +288,6 @@ subscriptions model =
   case model.is_playing of
     True ->
       Sub.batch [
-        Time.every (Time.minute * (interval model)) SetCurrentBeat,
         Phoenix.Socket.listen model.phxSocket PhoenixMsg
       ]
     False ->

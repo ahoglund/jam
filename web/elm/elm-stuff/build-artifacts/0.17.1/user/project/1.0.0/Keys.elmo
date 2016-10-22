@@ -1,0 +1,72 @@
+var _user$project$Keys$toFrequency = function (key) {
+	var _p0 = key;
+	switch (_p0.ctor) {
+		case 'C3':
+			return 130.81;
+		case 'CS3':
+			return 138.59;
+		case 'D3':
+			return 146.83;
+		case 'DS3':
+			return 155.56;
+		case 'E3':
+			return 164.81;
+		case 'F3':
+			return 174.61;
+		case 'FS3':
+			return 185.0;
+		case 'G3':
+			return 196.0;
+		case 'GS3':
+			return 207.65;
+		case 'A3':
+			return 220.0;
+		case 'AS3':
+			return 233.08;
+		case 'B3':
+			return 246.94;
+		case 'C4':
+			return 261.63;
+		case 'CS4':
+			return 277.18;
+		default:
+			return 293.67;
+	}
+};
+var _user$project$Keys$D4 = {ctor: 'D4'};
+var _user$project$Keys$CS4 = {ctor: 'CS4'};
+var _user$project$Keys$C4 = {ctor: 'C4'};
+var _user$project$Keys$B3 = {ctor: 'B3'};
+var _user$project$Keys$AS3 = {ctor: 'AS3'};
+var _user$project$Keys$A3 = {ctor: 'A3'};
+var _user$project$Keys$GS3 = {ctor: 'GS3'};
+var _user$project$Keys$G3 = {ctor: 'G3'};
+var _user$project$Keys$FS3 = {ctor: 'FS3'};
+var _user$project$Keys$F3 = {ctor: 'F3'};
+var _user$project$Keys$E3 = {ctor: 'E3'};
+var _user$project$Keys$DS3 = {ctor: 'DS3'};
+var _user$project$Keys$D3 = {ctor: 'D3'};
+var _user$project$Keys$CS3 = {ctor: 'CS3'};
+var _user$project$Keys$C3 = {ctor: 'C3'};
+var _user$project$Keys$keyCodeToKey = _elm_lang$core$Dict$fromList(
+	_elm_lang$core$Native_List.fromArray(
+		[
+			{ctor: '_Tuple2', _0: 65, _1: _user$project$Keys$C3},
+			{ctor: '_Tuple2', _0: 87, _1: _user$project$Keys$CS3},
+			{ctor: '_Tuple2', _0: 83, _1: _user$project$Keys$D3},
+			{ctor: '_Tuple2', _0: 69, _1: _user$project$Keys$DS3},
+			{ctor: '_Tuple2', _0: 68, _1: _user$project$Keys$E3},
+			{ctor: '_Tuple2', _0: 70, _1: _user$project$Keys$F3},
+			{ctor: '_Tuple2', _0: 84, _1: _user$project$Keys$FS3},
+			{ctor: '_Tuple2', _0: 71, _1: _user$project$Keys$G3},
+			{ctor: '_Tuple2', _0: 89, _1: _user$project$Keys$GS3},
+			{ctor: '_Tuple2', _0: 72, _1: _user$project$Keys$A3},
+			{ctor: '_Tuple2', _0: 85, _1: _user$project$Keys$AS3},
+			{ctor: '_Tuple2', _0: 74, _1: _user$project$Keys$B3},
+			{ctor: '_Tuple2', _0: 75, _1: _user$project$Keys$C4},
+			{ctor: '_Tuple2', _0: 79, _1: _user$project$Keys$CS4},
+			{ctor: '_Tuple2', _0: 76, _1: _user$project$Keys$D4}
+		]));
+var _user$project$Keys$fromKeyCode = function (keyCode) {
+	return A2(_elm_lang$core$Dict$get, keyCode, _user$project$Keys$keyCodeToKey);
+};
