@@ -9901,12 +9901,12 @@ var _user$project$Main$interval = function (model) {
 	return 0.5 / _elm_lang$core$Basics$toFloat(model.bpm);
 };
 var _user$project$Main$setActiveClass = F2(
-	function (beat_id, current_beat) {
+	function (cell_id, current_beat) {
 		var _p0 = current_beat;
 		if (_p0.ctor === 'Nothing') {
 			return 'inactive';
 		} else {
-			return _elm_lang$core$Native_Utils.eq(beat_id, _p0._0) ? 'active' : 'inactive';
+			return _elm_lang$core$Native_Utils.eq(cell_id, _p0._0) ? 'active' : 'inactive';
 		}
 	});
 var _user$project$Main$setActiveCell = F2(
@@ -9953,8 +9953,8 @@ var _user$project$Main$stepEditorHeader = A2(
 			_elm_lang$html$Html$text('Drum Sequence Editor')
 		]));
 var _user$project$Main$toggleCell = F3(
-	function (track, cell1, cell2) {
-		return (_elm_lang$core$Native_Utils.eq(track.id, cell2.track_id) && _elm_lang$core$Native_Utils.eq(cell1.id, cell2.id)) ? (_elm_lang$core$Native_Utils.eq(cell1.is_active, true) ? _elm_lang$core$Native_Utils.update(
+	function (track, cell1, toggled_cell) {
+		return (_elm_lang$core$Native_Utils.eq(track.id, toggled_cell.track_id) && _elm_lang$core$Native_Utils.eq(cell1.id, toggled_cell.id)) ? (_elm_lang$core$Native_Utils.eq(cell1.is_active, true) ? _elm_lang$core$Native_Utils.update(
 			cell1,
 			{is_active: false}) : _elm_lang$core$Native_Utils.update(
 			cell1,
@@ -9981,21 +9981,6 @@ var _user$project$Main$playSounds = F2(
 					model.tracks));
 		}
 	});
-var _user$project$Main$decodeCell = A4(
-	_elm_lang$core$Json_Decode$object3,
-	_user$project$Cell$Cell,
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'is_active', _elm_lang$core$Json_Decode$bool),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'track_id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int));
-var _user$project$Main$decodeCells = _elm_lang$core$Json_Decode$list(_user$project$Main$decodeCell);
-var _user$project$Main$decodeTrack = A5(
-	_elm_lang$core$Json_Decode$object4,
-	_user$project$Track$Track,
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'sample_file', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'cells', _user$project$Main$decodeCells));
-var _user$project$Main$decodeTracks = _elm_lang$core$Json_Decode$list(_user$project$Main$decodeTrack);
 var _user$project$Main$beatCount = _elm_lang$core$Native_List.range(1, 16);
 var _user$project$Main$jamChannelName = 'jam:room';
 var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
@@ -10003,18 +9988,31 @@ var _user$project$Main$Model = F6(
 	function (a, b, c, d, e, f) {
 		return {tracks: a, total_beats: b, current_beat: c, is_playing: d, phxSocket: e, bpm: f};
 	});
-var _user$project$Main$PlaySynth = function (a) {
-	return {ctor: 'PlaySynth', _0: a};
+var _user$project$Main$CellUpdate = F3(
+	function (a, b, c) {
+		return {cell_id: a, track_id: b, is_active: c};
+	});
+var _user$project$Main$decodeCellUpdate = A4(
+	_elm_lang$core$Json_Decode$object3,
+	_user$project$Main$CellUpdate,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'cell_id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'track_id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'is_active', _elm_lang$core$Json_Decode$bool));
+var _user$project$Main$MetronomeTick = function (a) {
+	return {metronome_tick: a};
 };
-var _user$project$Main$SendTrackUpdate = {ctor: 'SendTrackUpdate'};
-var _user$project$Main$ReceiveTrackUpdate = function (a) {
-	return {ctor: 'ReceiveTrackUpdate', _0: a};
+var _user$project$Main$decodeMetronomeTick = A2(
+	_elm_lang$core$Json_Decode$object1,
+	_user$project$Main$MetronomeTick,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'metronome_tick', _elm_lang$core$Json_Decode$int));
+var _user$project$Main$ReceiveMetronomeTick = function (a) {
+	return {ctor: 'ReceiveMetronomeTick', _0: a};
 };
 var _user$project$Main$initPhxSocket = A4(
 	_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-	'update_tracks',
+	'metronome_tick',
 	_user$project$Main$jamChannelName,
-	_user$project$Main$ReceiveTrackUpdate,
+	_user$project$Main$ReceiveMetronomeTick,
 	_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer)));
 var _user$project$Main$initModel = function (tracks) {
@@ -10032,6 +10030,8 @@ var _user$project$Main$init = function () {
 		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
 	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 }();
+var _user$project$Main$LeaveChannel = {ctor: 'LeaveChannel'};
+var _user$project$Main$JoinChannel = {ctor: 'JoinChannel'};
 var _user$project$Main$PhoenixMsg = function (a) {
 	return {ctor: 'PhoenixMsg', _0: a};
 };
@@ -10050,34 +10050,11 @@ var _user$project$Main$update = F2(
 						{phxSocket: phxSocket}),
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
 				};
-			case 'SendTrackUpdate':
-				var payload = _elm_lang$core$Json_Encode$bool(true);
-				var push$ = A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'update_tracks', _user$project$Main$jamChannelName));
-				var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push$, model.phxSocket);
-				var phxSocket = _p4._0;
-				var phxCmd = _p4._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-				};
-			case 'ReceiveTrackUpdate':
-				var _p5 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeTracks, _p2._0);
-				if (_p5.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{tracks: _p5._0}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+			case 'ReceiveMetronomeTick':
+				var _p4 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeMetronomeTick, _p2._0);
+				if (_p4.ctor === 'Ok') {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var _p6 = A2(_elm_lang$core$Debug$log, 'Error decoding song: ', _p5._0);
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'UpdateBpm':
@@ -10106,8 +10083,8 @@ var _user$project$Main$update = F2(
 					function (t) {
 						var new_cells = A2(
 							_elm_lang$core$List$map,
-							function (b) {
-								return A3(_user$project$Main$toggleCell, t, b, _p2._1);
+							function (c) {
+								return A3(_user$project$Main$toggleCell, t, c, _p2._0);
 							},
 							t.cells);
 						return _elm_lang$core$Native_Utils.update(
@@ -10121,6 +10098,29 @@ var _user$project$Main$update = F2(
 						model,
 						{tracks: tracks}),
 					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'JoinChannel':
+				var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(_user$project$Main$jamChannelName);
+				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+				var phxSocket = _p5._0;
+				var phxCmd = _p5._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'LeaveChannel':
+				var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$leave, _user$project$Main$jamChannelName, model.phxSocket);
+				var phxSocket = _p6._0;
+				var phxCmd = _p6._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
 				};
 			case 'SetCurrentBeat':
 				var _p7 = model.current_beat;
@@ -10203,14 +10203,16 @@ var _user$project$Main$update = F2(
 				};
 		}
 	});
+var _user$project$Main$PlaySynth = function (a) {
+	return {ctor: 'PlaySynth', _0: a};
+};
 var _user$project$Main$Stop = {ctor: 'Stop'};
 var _user$project$Main$Play = {ctor: 'Play'};
-var _user$project$Main$ToggleCell = F2(
-	function (a, b) {
-		return {ctor: 'ToggleCell', _0: a, _1: b};
-	});
+var _user$project$Main$ToggleCell = function (a) {
+	return {ctor: 'ToggleCell', _0: a};
+};
 var _user$project$Main$stepEditorCell = F3(
-	function (model, track, beat) {
+	function (model, track, cell) {
 		return A2(
 			_elm_lang$html$Html$td,
 			_elm_lang$core$Native_List.fromArray(
@@ -10225,17 +10227,17 @@ var _user$project$Main$stepEditorCell = F3(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
 								'-cell-',
-								_elm_lang$core$Basics$toString(beat.id))))),
+								_elm_lang$core$Basics$toString(cell.id))))),
 					_elm_lang$html$Html_Attributes$class(
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						A2(_user$project$Main$setActiveClass, beat.id, model.current_beat),
+						A2(_user$project$Main$setActiveClass, cell.id, model.current_beat),
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							' ',
-							A2(_user$project$Main$setActiveCell, track, beat)))),
+							A2(_user$project$Main$setActiveCell, track, cell)))),
 					_elm_lang$html$Html_Events$onClick(
-					A2(_user$project$Main$ToggleCell, track, beat))
+					_user$project$Main$ToggleCell(cell))
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[]));
@@ -10284,8 +10286,8 @@ var _user$project$Main$stepEditorTrack = F2(
 					[preview_cell]),
 				A2(
 					_elm_lang$core$List$map,
-					function (beat) {
-						return A3(_user$project$Main$stepEditorCell, model, track, beat);
+					function (cell) {
+						return A3(_user$project$Main$stepEditorCell, model, track, cell);
 					},
 					track.cells)));
 	});
@@ -10451,13 +10453,7 @@ var _user$project$Main$subscriptions = function (model) {
 					_elm_lang$core$Time$every,
 					_elm_lang$core$Time$minute * _user$project$Main$interval(model),
 					_user$project$Main$SetCurrentBeat),
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg),
-					_elm_lang$keyboard$Keyboard$presses(
-					function (code) {
-						return _user$project$Main$PlaySynth(
-							_elm_lang$core$Basics$toString(
-								_elm_lang$core$Char$fromCode(code)));
-					})
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg)
 				]));
 	} else {
 		return _elm_lang$core$Platform_Sub$none;

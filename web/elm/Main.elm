@@ -12,8 +12,8 @@ import Cmds exposing (..)
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
-import Json.Encode as JE
-import Json.Decode as JD exposing ((:=))
+import Json.Encode as JE exposing (..)
+import Json.Decode as JD exposing (..)
 import Dict
 import Keyboard
 import Char
@@ -59,6 +59,14 @@ type alias CellUpdate =
   , is_active : Bool
   }
 
+type alias MetronomeTick =
+  { metronome_tick : Int }
+
+decodeMetronomeTick : JD.Decoder MetronomeTick
+decodeMetronomeTick =
+  JD.object1 MetronomeTick
+    ("metronome_tick" := JD.int)
+
 decodeCellUpdate : JD.Decoder CellUpdate
 decodeCellUpdate =
   JD.object3 CellUpdate
@@ -73,9 +81,11 @@ type Msg
   | ToggleCell Cell
   | Play
   | Stop
-  | PhoenixMsg (Phoenix.Socket.Msg Msg)
   | PlaySynth String
-  | ReceiveMetronomeTick
+  | PhoenixMsg (Phoenix.Socket.Msg Msg)
+  | JoinChannel
+  | LeaveChannel
+  | ReceiveMetronomeTick JE.Value
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -87,14 +97,12 @@ update msg model =
         ( { model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-    ReceiveMetronomeTick ->
+    ReceiveMetronomeTick raw ->
       case JD.decodeValue decodeMetronomeTick raw of
         Ok tracks ->
-          ( { model | tracks = tracks }
-          , Cmd.none
-          )
+          (model, Cmd.none)
         Err err ->
-            (model, Cmd.none)
+          (model, Cmd.none)
     UpdateBpm bpm ->
       ({ model | bpm = bpm }, Cmd.none)
     PlaySound file ->
@@ -112,6 +120,24 @@ update msg model =
         )
       in
         ({ model | tracks = tracks }, Cmd.none)
+    JoinChannel ->
+      let
+        channel =
+          Phoenix.Channel.init jamChannelName
+
+        (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
+      in
+        ({ model | phxSocket = phxSocket }
+        , Cmd.map PhoenixMsg phxCmd
+        )
+
+    LeaveChannel ->
+      let
+        (phxSocket, phxCmd) = Phoenix.Socket.leave jamChannelName model.phxSocket
+      in
+        ({ model | phxSocket = phxSocket }
+        , Cmd.map PhoenixMsg phxCmd
+        )
     SetCurrentBeat time ->
       case model.current_beat of
         Nothing ->
