@@ -1,0 +1,3 @@
+<div id="app-container"></div>
+
+<%= link "Back", to: jam_path(@conn, :index) %>

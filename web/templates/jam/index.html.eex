@@ -1,0 +1,5 @@
+<%= for jam <- @jams do %>
+  <%= link "Join Jam #{jam.id}", to: jam_path(@conn, :show, jam), class: "btn btn-default" %>
+<% end %>
+<%= render "form.html", changeset: @changeset, action: jam_path(@conn, :create) %>
+

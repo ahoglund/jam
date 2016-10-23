@@ -16,7 +16,8 @@ defmodule BadMammaJamma.Router do
   scope "/", BadMammaJamma do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", JamController, :index
+    resources "/jams", JamController
   end
 
   # Other scopes may use custom stacks.

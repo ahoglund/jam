@@ -6,6 +6,21 @@ body, form, ul, table {
   background-color: #f3f4f6;
 }
 
+.table>tbody>tr>td.success {
+  background-color: #999da0;
+}
+.inactive {
+  background-color: #e1e4e9;
+}
+
+.active {
+  background-color: #e1e4e9;
+}
+
+.table>tbody>tr>td.success:hover {
+  background-color: #73777a;
+}
+
 .navbar-inverse {
   background-color: #000209;
 }

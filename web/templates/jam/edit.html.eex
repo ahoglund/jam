@@ -1,0 +1,6 @@
+<h2>Edit jam</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: jam_path(@conn, :update, @jam) %>
+
+<%= link "Back", to: jam_path(@conn, :index) %>

@@ -12,4 +12,12 @@ defmodule BadMammaJamma.JamChannel do
 
     {:noreply, assign(socket, :tick, tick + 1)}
   end
+
+  def handle_in("metronome_tick", params, socket) do
+    broadcast! socket, "metronome_tick", %{
+      tick: params["tick"]
+    }
+
+    {:reply, :ok, socket}
+  end
 end
