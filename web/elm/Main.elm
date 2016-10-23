@@ -24,6 +24,7 @@ type alias Model =
   , current_beat : Maybe Int
   , is_playing : Bool
   , phxSocket : Phoenix.Socket.Socket Msg
+  , jam_id : String
   , bpm : Int }
 
 socketServer : String
@@ -36,18 +37,19 @@ initPhxSocket =
     |> Phoenix.Socket.withDebug
     |> Phoenix.Socket.on "metronome_tick" jamChannelName ReceiveMetronomeTick
 
-initModel : List Track -> Model
-initModel tracks =
+initModel : JamFlags -> List Track -> Model
+initModel jamFlags tracks =
   { tracks = tracks
   , total_beats = List.length beatCount
   , bpm = 120
   , is_playing = False
   , phxSocket = initPhxSocket
+  , jam_id = jamFlags.jam_id
   , current_beat = Nothing }
 
 jamChannelName : String
 jamChannelName =
-  "jam:room"
+  "jam:room:"
 
 beatCount : List Int
 beatCount =
@@ -125,7 +127,7 @@ update msg model =
     JoinChannel ->
       let
         channel =
-          Phoenix.Channel.init jamChannelName
+          Phoenix.Channel.init (jamChannelName ++ model.jam_id)
 
         (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
       in
@@ -134,7 +136,7 @@ update msg model =
         )
     LeaveChannel ->
       let
-        (phxSocket, phxCmd) = Phoenix.Socket.leave jamChannelName model.phxSocket
+        (phxSocket, phxCmd) = Phoenix.Socket.leave (jamChannelName ++ model.jam_id) model.phxSocket
       in
         ({ model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
@@ -300,15 +302,19 @@ interval : Model -> Float
 interval model =
     0.5 / (toFloat model.bpm)
 
-init =
+init : JamFlags -> (Model, Cmd Msg)
+init jamFlags =
   let
-    model = initModel (defaultTracks beatCount)
+    model = initModel jamFlags (defaultTracks beatCount)
   in
     (model, Cmd.none)
 
-main : Program Never
+type alias JamFlags =
+  { jam_id : String }
+
+main : Program JamFlags
 main =
-  App.program
+  App.programWithFlags
     { init          = init
     , subscriptions = subscriptions
     , update        = update

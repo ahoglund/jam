@@ -15,7 +15,7 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 				},
 				total_cells),
 			'Kick',
-			'samples/kick.wav'),
+			'/samples/kick.wav'),
 			A4(
 			_user$project$Track$init,
 			2,
@@ -26,7 +26,7 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 				},
 				total_cells),
 			'Snare',
-			'samples/snare.wav'),
+			'/samples/snare.wav'),
 			A4(
 			_user$project$Track$init,
 			3,
@@ -37,7 +37,7 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 				},
 				total_cells),
 			'HH Closed',
-			'samples/hh-closed.wav'),
+			'/samples/hh-closed.wav'),
 			A4(
 			_user$project$Track$init,
 			4,
@@ -48,7 +48,7 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 				},
 				total_cells),
 			'HH Open',
-			'samples/hh-open.wav')
+			'/samples/hh-open.wav')
 		]);
 };
 var _user$project$Track$Track = F4(

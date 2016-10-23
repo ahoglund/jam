@@ -1,9 +1,8 @@
 defmodule BadMammaJamma.JamChannel do
   use BadMammaJamma.Web, :channel
 
-  def join("jam:room", _message, socket) do
-    :timer.send_interval(333, :metronome_tick)
-    {:ok, socket}
+  def join("jam:room:" <> jam_id, _message, socket) do
+    {:ok, assign(socket, :jam_id, String.to_integer(jam_id))}
   end
 
   def handle_info(:metronome_tick, socket) do
