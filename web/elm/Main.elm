@@ -84,7 +84,6 @@ type Msg
   | Stop
   | PlaySynth String
   | PhoenixMsg (Phoenix.Socket.Msg Msg)
-  | JoinChannel
   | LeaveChannel
   | ReceiveMetronomeTick JE.Value
 
@@ -124,16 +123,6 @@ update msg model =
         )
       in
         ({ model | tracks = tracks }, Cmd.none)
-    JoinChannel ->
-      let
-        channel =
-          Phoenix.Channel.init (jamChannelName ++ model.jam_id)
-
-        (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
-      in
-        ({ model | phxSocket = phxSocket }
-        , Cmd.map PhoenixMsg phxCmd
-        )
     LeaveChannel ->
       let
         (phxSocket, phxCmd) = Phoenix.Socket.leave (jamChannelName ++ model.jam_id) model.phxSocket
@@ -281,7 +270,6 @@ buttons model =
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
     button [ class "btn btn-default", onClick (UpdateBpm (model.bpm - 1))]
       [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
-    button [ class "btn btn-default", onClick JoinChannel ] [ text "Join channel" ],
     button [ class "btn btn-default", onClick LeaveChannel ] [ text "Leave channel" ],
     p [] [ text (toString model) ]
   ]
@@ -306,8 +294,10 @@ init : JamFlags -> (Model, Cmd Msg)
 init jamFlags =
   let
     model = initModel jamFlags (defaultTracks beatCount)
+    channel = Phoenix.Channel.init (jamChannelName ++ model.jam_id)
+    (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
   in
-    (model, Cmd.none)
+    ({ model | phxSocket = phxSocket } , Cmd.map PhoenixMsg phxCmd)
 
 type alias JamFlags =
   { jam_id : String }

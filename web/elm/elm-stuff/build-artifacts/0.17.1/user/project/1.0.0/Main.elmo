@@ -140,15 +140,7 @@ var _user$project$Main$initModel = F2(
 			current_beat: _elm_lang$core$Maybe$Nothing
 		};
 	});
-var _user$project$Main$init = function (jamFlags) {
-	var model = A2(
-		_user$project$Main$initModel,
-		jamFlags,
-		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
-	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-};
 var _user$project$Main$LeaveChannel = {ctor: 'LeaveChannel'};
-var _user$project$Main$JoinChannel = {ctor: 'JoinChannel'};
 var _user$project$Main$PhoenixMsg = function (a) {
 	return {ctor: 'PhoenixMsg', _0: a};
 };
@@ -224,26 +216,13 @@ var _user$project$Main$update = F2(
 						{tracks: tracks}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'JoinChannel':
-				var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
-					A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id));
-				var _p7 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
-				var phxSocket = _p7._0;
-				var phxCmd = _p7._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-				};
 			case 'LeaveChannel':
-				var _p8 = A2(
+				var _p7 = A2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$leave,
 					A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id),
 					model.phxSocket);
-				var phxSocket = _p8._0;
-				var phxCmd = _p8._1;
+				var phxSocket = _p7._0;
+				var phxCmd = _p7._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -284,6 +263,24 @@ var _user$project$Main$subscriptions = function (model) {
 			[
 				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg)
 			]));
+};
+var _user$project$Main$init = function (jamFlags) {
+	var model = A2(
+		_user$project$Main$initModel,
+		jamFlags,
+		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
+	var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
+		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id));
+	var _p8 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+	var phxSocket = _p8._0;
+	var phxCmd = _p8._1;
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			model,
+			{phxSocket: phxSocket}),
+		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+	};
 };
 var _user$project$Main$PlaySynth = function (a) {
 	return {ctor: 'PlaySynth', _0: a};
@@ -528,17 +525,6 @@ var _user$project$Main$buttons = function (model) {
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[]))
-					])),
-				A2(
-				_elm_lang$html$Html$button,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('btn btn-default'),
-						_elm_lang$html$Html_Events$onClick(_user$project$Main$JoinChannel)
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Join channel')
 					])),
 				A2(
 				_elm_lang$html$Html$button,

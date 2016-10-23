@@ -22,6 +22,8 @@ function playSound(file) {
   getSample(file);
 }
 
-elmApp.ports.playRawSound.subscribe(function (file) {
-  playSound(file);
-});
+if(elmApp) {
+  elmApp.ports.playRawSound.subscribe(function (file) {
+    playSound(file);
+  });
+};
