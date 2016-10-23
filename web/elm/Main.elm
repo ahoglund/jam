@@ -31,11 +31,12 @@ socketServer : String
 socketServer =
   "ws://localhost:4000/socket/websocket"
 
-initPhxSocket : Phoenix.Socket.Socket Msg
-initPhxSocket =
+initPhxSocket : String -> Phoenix.Socket.Socket Msg
+initPhxSocket jam_id =
   Phoenix.Socket.init socketServer
     |> Phoenix.Socket.withDebug
-    |> Phoenix.Socket.on "metronome_tick" jamChannelName ReceiveMetronomeTick
+    |> Phoenix.Socket.on "metronome_tick" (jamChannelName ++ jam_id) ReceiveMetronomeTick
+    |> Phoenix.Socket.on "cell_update" (jamChannelName ++ jam_id) ReceiveCellUpdate
 
 initModel : JamFlags -> List Track -> Model
 initModel jamFlags tracks =
@@ -43,7 +44,7 @@ initModel jamFlags tracks =
   , total_beats = List.length beatCount
   , bpm = 120
   , is_playing = False
-  , phxSocket = initPhxSocket
+  , phxSocket = (initPhxSocket jamFlags.jam_id)
   , jam_id = jamFlags.jam_id
   , current_beat = Nothing }
 
@@ -55,14 +56,13 @@ beatCount : List Int
 beatCount =
   [1..16]
 
+type alias Metronome =
+  { tick : Int }
+
 type alias CellUpdate =
   { cell_id : Int
   , track_id : Int
-  , is_active : Bool
-  }
-
-type alias Metronome =
-  { tick : Int }
+  , is_active : Bool }
 
 decodeMetronomeTick : JD.Decoder Metronome
 decodeMetronomeTick =
@@ -86,6 +86,7 @@ type Msg
   | PhoenixMsg (Phoenix.Socket.Msg Msg)
   | LeaveChannel
   | ReceiveMetronomeTick JE.Value
+  | ReceiveCellUpdate JE.Value
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -97,6 +98,15 @@ update msg model =
         ( { model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
+    ReceiveCellUpdate  raw ->
+      case JD.decodeValue decodeCellUpdate raw of
+        Ok cell_details ->
+          let
+            current_beat = (Just 1)
+          in
+          ({ model | current_beat = current_beat }, Cmd.none)
+        Err err ->
+          (model, Cmd.none)
     ReceiveMetronomeTick raw ->
       case JD.decodeValue decodeMetronomeTick raw of
         Ok metronome ->
