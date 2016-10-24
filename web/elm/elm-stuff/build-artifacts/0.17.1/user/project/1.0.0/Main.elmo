@@ -131,188 +131,8 @@ var _user$project$Main$decodeMetronomeTick = A2(
 var _user$project$Main$JamFlags = function (a) {
 	return {jam_id: a};
 };
-var _user$project$Main$ReceiveUpdatedCell = function (a) {
-	return {ctor: 'ReceiveUpdatedCell', _0: a};
-};
-var _user$project$Main$ReceiveMetronomeTick = function (a) {
-	return {ctor: 'ReceiveMetronomeTick', _0: a};
-};
-var _user$project$Main$initPhxSocket = function (jam_id) {
-	return A4(
-		_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-		'update_cell',
-		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, jam_id),
-		_user$project$Main$ReceiveUpdatedCell,
-		A4(
-			_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-			'metronome_tick',
-			A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, jam_id),
-			_user$project$Main$ReceiveMetronomeTick,
-			_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
-				_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer))));
-};
-var _user$project$Main$initModel = F2(
-	function (jamFlags, tracks) {
-		return {
-			tracks: tracks,
-			total_beats: _elm_lang$core$List$length(_user$project$Main$beatCount),
-			bpm: 120,
-			is_playing: false,
-			phxSocket: _user$project$Main$initPhxSocket(jamFlags.jam_id),
-			jam_id: jamFlags.jam_id,
-			current_beat: _elm_lang$core$Maybe$Nothing
-		};
-	});
-var _user$project$Main$LeaveChannel = {ctor: 'LeaveChannel'};
-var _user$project$Main$PhoenixMsg = function (a) {
-	return {ctor: 'PhoenixMsg', _0: a};
-};
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p4 = msg;
-		switch (_p4.ctor) {
-			case 'PhoenixMsg':
-				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p4._0, model.phxSocket);
-				var phxSocket = _p5._0;
-				var phxCmd = _p5._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-				};
-			case 'ReceiveUpdatedCell':
-				var _p6 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeCell, _p4._0);
-				if (_p6.ctor === 'Ok') {
-					var tracks = A2(_user$project$Main$toggleCells, model.tracks, _p6._0);
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{tracks: tracks}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			case 'ToggleCell':
-				var tracks = A2(_user$project$Main$toggleCells, model.tracks, _p4._0);
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{tracks: tracks}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'ReceiveMetronomeTick':
-				var _p7 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeMetronomeTick, _p4._0);
-				if (_p7.ctor === 'Ok') {
-					var current_beat = _user$project$Main$setCurrentBeat(model);
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{current_beat: current_beat}),
-						_1: _elm_lang$core$Platform_Cmd$batch(
-							A2(_user$project$Main$playSounds, model, current_beat))
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			case 'UpdateBpm':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{bpm: _p4._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'PlaySound':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Cmds$playSound(_p4._0)
-				};
-			case 'PlaySynth':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Cmds$playSynth(440.0)
-				};
-			case 'LeaveChannel':
-				var _p8 = A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Socket$leave,
-					A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id),
-					model.phxSocket);
-				var phxSocket = _p8._0;
-				var phxCmd = _p8._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-				};
-			case 'Play':
-				var current_beat = _user$project$Main$setCurrentBeat(model);
-				return _elm_lang$core$Native_Utils.eq(model.is_playing, true) ? {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{current_beat: current_beat}),
-					_1: _elm_lang$core$Platform_Cmd$batch(
-						A2(_user$project$Main$playSounds, model, current_beat))
-				} : {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{is_playing: true}),
-					_1: _elm_lang$core$Platform_Cmd$batch(
-						A2(_user$project$Main$playSounds, model, current_beat))
-				};
-			default:
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{current_beat: _elm_lang$core$Maybe$Nothing, is_playing: false}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-		}
-	});
-var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg)
-			]));
-};
-var _user$project$Main$init = function (jamFlags) {
-	var model = A2(
-		_user$project$Main$initModel,
-		jamFlags,
-		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
-	var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
-		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id));
-	var _p9 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
-	var phxSocket = _p9._0;
-	var phxCmd = _p9._1;
-	return {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_Utils.update(
-			model,
-			{phxSocket: phxSocket}),
-		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
-	};
-};
-var _user$project$Main$PlaySynth = function (a) {
-	return {ctor: 'PlaySynth', _0: a};
-};
-var _user$project$Main$Stop = {ctor: 'Stop'};
-var _user$project$Main$Play = {ctor: 'Play'};
-var _user$project$Main$ToggleCell = function (a) {
-	return {ctor: 'ToggleCell', _0: a};
+var _user$project$Main$SendUpdatedCell = function (a) {
+	return {ctor: 'SendUpdatedCell', _0: a};
 };
 var _user$project$Main$stepEditorCell = F3(
 	function (model, track, cell) {
@@ -340,7 +160,7 @@ var _user$project$Main$stepEditorCell = F3(
 							' ',
 							A2(_user$project$Main$setActiveCell, track, cell)))),
 					_elm_lang$html$Html_Events$onClick(
-					_user$project$Main$ToggleCell(
+					_user$project$Main$SendUpdatedCell(
 						A3(_user$project$Cell$Cell, track.id, cell.is_active, cell.id)))
 				]),
 			_elm_lang$core$Native_List.fromArray(
@@ -419,6 +239,216 @@ var _user$project$Main$stepEditorSection = function (model) {
 				_user$project$Main$stepEditor(model)
 			]));
 };
+var _user$project$Main$ReceiveUpdatedCell = function (a) {
+	return {ctor: 'ReceiveUpdatedCell', _0: a};
+};
+var _user$project$Main$ReceiveMetronomeTick = function (a) {
+	return {ctor: 'ReceiveMetronomeTick', _0: a};
+};
+var _user$project$Main$initPhxSocket = function (jam_id) {
+	return A4(
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+		'update_cell',
+		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, jam_id),
+		_user$project$Main$ReceiveUpdatedCell,
+		A4(
+			_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+			'metronome_tick',
+			A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, jam_id),
+			_user$project$Main$ReceiveMetronomeTick,
+			_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
+				_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer))));
+};
+var _user$project$Main$initModel = F2(
+	function (jamFlags, tracks) {
+		return {
+			tracks: tracks,
+			total_beats: _elm_lang$core$List$length(_user$project$Main$beatCount),
+			bpm: 120,
+			is_playing: false,
+			phxSocket: _user$project$Main$initPhxSocket(jamFlags.jam_id),
+			jam_id: jamFlags.jam_id,
+			current_beat: _elm_lang$core$Maybe$Nothing
+		};
+	});
+var _user$project$Main$LeaveChannel = {ctor: 'LeaveChannel'};
+var _user$project$Main$PhoenixMsg = function (a) {
+	return {ctor: 'PhoenixMsg', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
+			case 'PhoenixMsg':
+				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p4._0, model.phxSocket);
+				var phxSocket = _p5._0;
+				var phxCmd = _p5._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'ReceiveUpdatedCell':
+				var _p6 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeCell, _p4._0);
+				if (_p6.ctor === 'Ok') {
+					var tracks = A2(_user$project$Main$toggleCells, model.tracks, _p6._0);
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{tracks: tracks}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'SendUpdatedCell':
+				var _p8 = _p4._0;
+				var tracks = A2(_user$project$Main$toggleCells, model.tracks, _p8);
+				var payload = _elm_lang$core$Json_Encode$object(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{
+							ctor: '_Tuple2',
+							_0: 'track_id',
+							_1: _elm_lang$core$Json_Encode$int(_p8.track_id)
+						},
+							{
+							ctor: '_Tuple2',
+							_0: 'is_active',
+							_1: _elm_lang$core$Json_Encode$bool(_p8.is_active)
+						},
+							{
+							ctor: '_Tuple2',
+							_0: 'id',
+							_1: _elm_lang$core$Json_Encode$int(_p8.id)
+						}
+						]));
+				var push$ = A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+					payload,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$init,
+						'update_cell',
+						A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id)));
+				var _p7 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push$, model.phxSocket);
+				var phxSocket = _p7._0;
+				var phxCmd = _p7._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{tracks: tracks, phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'ReceiveMetronomeTick':
+				var _p9 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeMetronomeTick, _p4._0);
+				if (_p9.ctor === 'Ok') {
+					var current_beat = _user$project$Main$setCurrentBeat(model);
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{current_beat: current_beat}),
+						_1: _elm_lang$core$Platform_Cmd$batch(
+							A2(_user$project$Main$playSounds, model, current_beat))
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'UpdateBpm':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{bpm: _p4._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'PlaySound':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Cmds$playSound(_p4._0)
+				};
+			case 'PlaySynth':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Cmds$playSynth(440.0)
+				};
+			case 'LeaveChannel':
+				var _p10 = A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$leave,
+					A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id),
+					model.phxSocket);
+				var phxSocket = _p10._0;
+				var phxCmd = _p10._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+				};
+			case 'Play':
+				var current_beat = _user$project$Main$setCurrentBeat(model);
+				return _elm_lang$core$Native_Utils.eq(model.is_playing, true) ? {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{current_beat: current_beat}),
+					_1: _elm_lang$core$Platform_Cmd$batch(
+						A2(_user$project$Main$playSounds, model, current_beat))
+				} : {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{is_playing: true}),
+					_1: _elm_lang$core$Platform_Cmd$batch(
+						A2(_user$project$Main$playSounds, model, current_beat))
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{current_beat: _elm_lang$core$Maybe$Nothing, is_playing: false}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg)
+			]));
+};
+var _user$project$Main$init = function (jamFlags) {
+	var model = A2(
+		_user$project$Main$initModel,
+		jamFlags,
+		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
+	var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
+		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id));
+	var _p11 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+	var phxSocket = _p11._0;
+	var phxCmd = _p11._1;
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			model,
+			{phxSocket: phxSocket}),
+		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
+	};
+};
+var _user$project$Main$PlaySynth = function (a) {
+	return {ctor: 'PlaySynth', _0: a};
+};
+var _user$project$Main$Stop = {ctor: 'Stop'};
+var _user$project$Main$Play = {ctor: 'Play'};
 var _user$project$Main$PlaySound = function (a) {
 	return {ctor: 'PlaySound', _0: a};
 };

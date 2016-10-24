@@ -74,7 +74,6 @@ decodeCell =
 type Msg
   = UpdateBpm Int
   | PlaySound String
-  | ToggleCell Cell
   | Play
   | Stop
   | PlaySynth String
@@ -82,6 +81,7 @@ type Msg
   | LeaveChannel
   | ReceiveMetronomeTick JE.Value
   | ReceiveUpdatedCell JE.Value
+  | SendUpdatedCell Cell
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -102,11 +102,20 @@ update msg model =
           ({ model | tracks = tracks }, Cmd.none)
         Err err ->
           (model, Cmd.none)
-    ToggleCell updated_cell ->
+    SendUpdatedCell updated_cell ->
       let
+        payload = (JE.object
+          [ ("track_id",  JE.int updated_cell.track_id)
+          , ("is_active", JE.bool updated_cell.is_active)
+          , ("id",        JE.int updated_cell.id)])
+
+        push' =
+          Phoenix.Push.init "update_cell" (jamChannelName ++ model.jam_id)
+          |> Phoenix.Push.withPayload payload
         tracks = (toggleCells model.tracks updated_cell)
+        (phxSocket, phxCmd) = Phoenix.Socket.push push' model.phxSocket
       in
-        ({ model | tracks = tracks }, Cmd.none)
+        ({ model | tracks = tracks, phxSocket = phxSocket }, Cmd.map PhoenixMsg phxCmd)
     ReceiveMetronomeTick raw ->
       case JD.decodeValue decodeMetronomeTick raw of
         Ok metronome ->
@@ -246,7 +255,7 @@ stepEditorCell : Model -> Track -> Cell -> Html Msg
 stepEditorCell model track cell =
   td [ id ("track-" ++ (toString track.id) ++ "-cell-" ++ (toString cell.id))
      , class ((setActiveClass cell.id model) ++ " " ++ (setActiveCell track cell))
-     , onClick (ToggleCell (Cell track.id cell.is_active cell.id))] []
+     , onClick (SendUpdatedCell (Cell track.id cell.is_active cell.id))] []
 
 setActiveCell : Track -> Cell -> String
 setActiveCell track beat =
