@@ -18,6 +18,18 @@ import Dict
 import Keys
 import Char
 
+type alias JamFlags =
+  { jam_id : String }
+
+main : Program JamFlags
+main =
+  App.programWithFlags
+    { init          = init
+    , subscriptions = subscriptions
+    , update        = update
+    , view          = view
+    }
+
 type alias Model =
   { tracks : List Track
   , total_beats : Int
@@ -330,16 +342,4 @@ init jamFlags =
     (phxSocket, phxCmd) = Phoenix.Socket.join channel model.phxSocket
   in
     ({ model | phxSocket = phxSocket } , Cmd.map PhoenixMsg phxCmd)
-
-type alias JamFlags =
-  { jam_id : String }
-
-main : Program JamFlags
-main =
-  App.programWithFlags
-    { init          = init
-    , subscriptions = subscriptions
-    , update        = update
-    , view          = view
-    }
 

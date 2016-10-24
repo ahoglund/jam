@@ -10087,6 +10087,9 @@ var _user$project$Main$decodeBpm = A2(_elm_lang$core$Json_Decode_ops[':='], 'bpm
 var _user$project$Main$beatCount = _elm_lang$core$Native_List.range(1, 16);
 var _user$project$Main$jamChannelName = 'jam:room:';
 var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
+var _user$project$Main$JamFlags = function (a) {
+	return {jam_id: a};
+};
 var _user$project$Main$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {tracks: a, total_beats: b, current_beat: c, is_playing: d, phxSocket: e, bpm: f, jam_id: g};
@@ -10098,9 +10101,6 @@ var _user$project$Main$decodeMetronomeTick = A2(
 	_elm_lang$core$Json_Decode$object1,
 	_user$project$Main$Metronome,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'tick', _elm_lang$core$Json_Decode$int));
-var _user$project$Main$JamFlags = function (a) {
-	return {jam_id: a};
-};
 var _user$project$Main$SendBpmUpdate = function (a) {
 	return {ctor: 'SendBpmUpdate', _0: a};
 };
