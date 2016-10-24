@@ -1,8 +1,8 @@
 module Cell exposing (Cell, init)
 
 type alias Cell =
-  { is_active : Bool
-  , track_id : Int
+  { track_id : Int
+  , is_active : Bool
   , id: Int }
 
 init : Int -> Int -> Cell

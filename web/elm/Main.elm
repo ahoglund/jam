@@ -36,7 +36,7 @@ initPhxSocket jam_id =
   Phoenix.Socket.init socketServer
     |> Phoenix.Socket.withDebug
     |> Phoenix.Socket.on "metronome_tick" (jamChannelName ++ jam_id) ReceiveMetronomeTick
-    |> Phoenix.Socket.on "cell_update" (jamChannelName ++ jam_id) ReceiveCellUpdate
+    |> Phoenix.Socket.on "update_cell" (jamChannelName ++ jam_id) ReceiveUpdatedCell
 
 initModel : JamFlags -> List Track -> Model
 initModel jamFlags tracks =
@@ -59,22 +59,17 @@ beatCount =
 type alias Metronome =
   { tick : Int }
 
-type alias CellUpdate =
-  { cell_id : Int
-  , track_id : Int
-  , is_active : Bool }
-
 decodeMetronomeTick : JD.Decoder Metronome
 decodeMetronomeTick =
   JD.object1 Metronome
     ("tick" := JD.int)
 
-decodeCellUpdate : JD.Decoder CellUpdate
-decodeCellUpdate =
-  JD.object3 CellUpdate
-    ("cell_id" := JD.int)
+decodeCell : JD.Decoder Cell
+decodeCell =
+  JD.object3 Cell
     ("track_id" := JD.int)
     ("is_active" := JD.bool)
+    ("id" := JD.int)
 
 type Msg
   = UpdateBpm Int
@@ -86,7 +81,7 @@ type Msg
   | PhoenixMsg (Phoenix.Socket.Msg Msg)
   | LeaveChannel
   | ReceiveMetronomeTick JE.Value
-  | ReceiveCellUpdate JE.Value
+  | ReceiveUpdatedCell JE.Value
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -98,15 +93,20 @@ update msg model =
         ( { model | phxSocket = phxSocket }
         , Cmd.map PhoenixMsg phxCmd
         )
-    ReceiveCellUpdate  raw ->
-      case JD.decodeValue decodeCellUpdate raw of
-        Ok cell_details ->
+    ReceiveUpdatedCell raw ->
+      case JD.decodeValue decodeCell raw of
+        Ok updated_cell ->
           let
-            current_beat = (Just 1)
+            tracks = (toggleCells model.tracks updated_cell)
           in
-          ({ model | current_beat = current_beat }, Cmd.none)
+          ({ model | tracks = tracks }, Cmd.none)
         Err err ->
           (model, Cmd.none)
+    ToggleCell updated_cell ->
+      let
+        tracks = (toggleCells model.tracks updated_cell)
+      in
+        ({ model | tracks = tracks }, Cmd.none)
     ReceiveMetronomeTick raw ->
       case JD.decodeValue decodeMetronomeTick raw of
         Ok metronome ->
@@ -122,17 +122,6 @@ update msg model =
       (model, Cmds.playSound(file))
     PlaySynth key ->
       (model, Cmds.playSynth(440.0))
-    ToggleCell cell ->
-      let
-        tracks = model.tracks
-        |> List.map (\t ->
-          let
-            new_cells = List.map (\c -> toggleCell t c cell) t.cells
-          in
-          ({ t | cells = new_cells })
-        )
-      in
-        ({ model | tracks = tracks }, Cmd.none)
     LeaveChannel ->
       let
         (phxSocket, phxCmd) = Phoenix.Socket.leave (jamChannelName ++ model.jam_id) model.phxSocket
@@ -186,15 +175,25 @@ playSounds model current_beat =
       )
       |> List.concat
 
+toggleCells : List Track -> Cell -> List Track
+toggleCells tracks updated_cell =
+    tracks
+      |> List.map (\track ->
+        let
+          new_cells = List.map (\cell -> toggleCell track cell updated_cell) track.cells
+        in
+        ({ track | cells = new_cells })
+      )
+
 toggleCell : Track -> Cell -> Cell -> Cell
-toggleCell track cell1 toggled_cell =
-  if track.id == toggled_cell.track_id && cell1.id == toggled_cell.id  then
-    if cell1.is_active == True then
-      ({ cell1 | is_active = False })
+toggleCell current_track current_cell updated_cell =
+  if current_track.id == updated_cell.track_id && current_cell.id == updated_cell.id  then
+    if updated_cell.is_active == True then
+      ({ current_cell | is_active = False })
     else
-      ({ cell1 | is_active = True })
+      ({ current_cell | is_active = True })
   else
-    (cell1)
+    (current_cell)
 
 stepEditorSection : Model -> Html Msg
 stepEditorSection model =
@@ -247,7 +246,7 @@ stepEditorCell : Model -> Track -> Cell -> Html Msg
 stepEditorCell model track cell =
   td [ id ("track-" ++ (toString track.id) ++ "-cell-" ++ (toString cell.id))
      , class ((setActiveClass cell.id model) ++ " " ++ (setActiveCell track cell))
-     , onClick (ToggleCell cell)] []
+     , onClick (ToggleCell (Cell track.id cell.is_active cell.id))] []
 
 setActiveCell : Track -> Cell -> String
 setActiveCell track beat =
@@ -280,7 +279,6 @@ buttons model =
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
     button [ class "btn btn-default", onClick (UpdateBpm (model.bpm - 1))]
       [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
-    button [ class "btn btn-default", onClick LeaveChannel ] [ text "Leave channel" ],
     p [] [ text (toString model) ]
   ]
 

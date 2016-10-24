@@ -54,12 +54,29 @@ var _user$project$Main$stepEditorHeader = A2(
 			_elm_lang$html$Html$text('Sequencer')
 		]));
 var _user$project$Main$toggleCell = F3(
-	function (track, cell1, toggled_cell) {
-		return (_elm_lang$core$Native_Utils.eq(track.id, toggled_cell.track_id) && _elm_lang$core$Native_Utils.eq(cell1.id, toggled_cell.id)) ? (_elm_lang$core$Native_Utils.eq(cell1.is_active, true) ? _elm_lang$core$Native_Utils.update(
-			cell1,
+	function (current_track, current_cell, updated_cell) {
+		return (_elm_lang$core$Native_Utils.eq(current_track.id, updated_cell.track_id) && _elm_lang$core$Native_Utils.eq(current_cell.id, updated_cell.id)) ? (_elm_lang$core$Native_Utils.eq(updated_cell.is_active, true) ? _elm_lang$core$Native_Utils.update(
+			current_cell,
 			{is_active: false}) : _elm_lang$core$Native_Utils.update(
-			cell1,
-			{is_active: true})) : cell1;
+			current_cell,
+			{is_active: true})) : current_cell;
+	});
+var _user$project$Main$toggleCells = F2(
+	function (tracks, updated_cell) {
+		return A2(
+			_elm_lang$core$List$map,
+			function (track) {
+				var new_cells = A2(
+					_elm_lang$core$List$map,
+					function (cell) {
+						return A3(_user$project$Main$toggleCell, track, cell, updated_cell);
+					},
+					track.cells);
+				return _elm_lang$core$Native_Utils.update(
+					track,
+					{cells: new_cells});
+			},
+			tracks);
 	});
 var _user$project$Main$playSounds = F2(
 	function (model, current_beat) {
@@ -91,6 +108,12 @@ var _user$project$Main$setCurrentBeat = function (model) {
 		return _elm_lang$core$Native_Utils.eq(model.is_playing, true) ? (_elm_lang$core$Native_Utils.eq(_p3, model.total_beats) ? _elm_lang$core$Maybe$Just(1) : _elm_lang$core$Maybe$Just(_p3 + 1)) : _elm_lang$core$Maybe$Nothing;
 	}
 };
+var _user$project$Main$decodeCell = A4(
+	_elm_lang$core$Json_Decode$object3,
+	_user$project$Cell$Cell,
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'track_id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'is_active', _elm_lang$core$Json_Decode$bool),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'id', _elm_lang$core$Json_Decode$int));
 var _user$project$Main$beatCount = _elm_lang$core$Native_List.range(1, 16);
 var _user$project$Main$jamChannelName = 'jam:room:';
 var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
@@ -105,21 +128,11 @@ var _user$project$Main$decodeMetronomeTick = A2(
 	_elm_lang$core$Json_Decode$object1,
 	_user$project$Main$Metronome,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'tick', _elm_lang$core$Json_Decode$int));
-var _user$project$Main$CellUpdate = F3(
-	function (a, b, c) {
-		return {cell_id: a, track_id: b, is_active: c};
-	});
-var _user$project$Main$decodeCellUpdate = A4(
-	_elm_lang$core$Json_Decode$object3,
-	_user$project$Main$CellUpdate,
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'cell_id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'track_id', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode_ops[':='], 'is_active', _elm_lang$core$Json_Decode$bool));
 var _user$project$Main$JamFlags = function (a) {
 	return {jam_id: a};
 };
-var _user$project$Main$ReceiveCellUpdate = function (a) {
-	return {ctor: 'ReceiveCellUpdate', _0: a};
+var _user$project$Main$ReceiveUpdatedCell = function (a) {
+	return {ctor: 'ReceiveUpdatedCell', _0: a};
 };
 var _user$project$Main$ReceiveMetronomeTick = function (a) {
 	return {ctor: 'ReceiveMetronomeTick', _0: a};
@@ -127,9 +140,9 @@ var _user$project$Main$ReceiveMetronomeTick = function (a) {
 var _user$project$Main$initPhxSocket = function (jam_id) {
 	return A4(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-		'cell_update',
+		'update_cell',
 		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, jam_id),
-		_user$project$Main$ReceiveCellUpdate,
+		_user$project$Main$ReceiveUpdatedCell,
 		A4(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
 			'metronome_tick',
@@ -169,20 +182,29 @@ var _user$project$Main$update = F2(
 						{phxSocket: phxSocket}),
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PhoenixMsg, phxCmd)
 				};
-			case 'ReceiveCellUpdate':
-				var _p6 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeCellUpdate, _p4._0);
+			case 'ReceiveUpdatedCell':
+				var _p6 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeCell, _p4._0);
 				if (_p6.ctor === 'Ok') {
-					var current_beat = _elm_lang$core$Maybe$Just(1);
+					var tracks = A2(_user$project$Main$toggleCells, model.tracks, _p6._0);
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{current_beat: current_beat}),
+							{tracks: tracks}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
+			case 'ToggleCell':
+				var tracks = A2(_user$project$Main$toggleCells, model.tracks, _p4._0);
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{tracks: tracks}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 			case 'ReceiveMetronomeTick':
 				var _p7 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$decodeMetronomeTick, _p4._0);
 				if (_p7.ctor === 'Ok') {
@@ -217,28 +239,6 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: model,
 					_1: _user$project$Cmds$playSynth(440.0)
-				};
-			case 'ToggleCell':
-				var tracks = A2(
-					_elm_lang$core$List$map,
-					function (t) {
-						var new_cells = A2(
-							_elm_lang$core$List$map,
-							function (c) {
-								return A3(_user$project$Main$toggleCell, t, c, _p4._0);
-							},
-							t.cells);
-						return _elm_lang$core$Native_Utils.update(
-							t,
-							{cells: new_cells});
-					},
-					model.tracks);
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{tracks: tracks}),
-					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'LeaveChannel':
 				var _p8 = A2(
@@ -340,7 +340,8 @@ var _user$project$Main$stepEditorCell = F3(
 							' ',
 							A2(_user$project$Main$setActiveCell, track, cell)))),
 					_elm_lang$html$Html_Events$onClick(
-					_user$project$Main$ToggleCell(cell))
+					_user$project$Main$ToggleCell(
+						A3(_user$project$Cell$Cell, track.id, cell.is_active, cell.id)))
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[]));
@@ -549,17 +550,6 @@ var _user$project$Main$buttons = function (model) {
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[]))
-					])),
-				A2(
-				_elm_lang$html$Html$button,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('btn btn-default'),
-						_elm_lang$html$Html_Events$onClick(_user$project$Main$LeaveChannel)
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Leave channel')
 					])),
 				A2(
 				_elm_lang$html$Html$p,

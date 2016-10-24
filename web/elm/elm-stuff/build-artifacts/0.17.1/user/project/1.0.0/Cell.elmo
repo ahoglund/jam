@@ -4,5 +4,5 @@ var _user$project$Cell$init = F2(
 	});
 var _user$project$Cell$Cell = F3(
 	function (a, b, c) {
-		return {is_active: a, track_id: b, id: c};
+		return {track_id: a, is_active: b, id: c};
 	});
