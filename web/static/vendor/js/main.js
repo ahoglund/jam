@@ -9970,9 +9970,6 @@ var _user$project$Track$Track = F4(
 		return {id: a, name: b, sample_file: c, cells: d};
 	});
 
-var _user$project$Main$interval = function (model) {
-	return 0.5 / _elm_lang$core$Basics$toFloat(model.bpm);
-};
 var _user$project$Main$setActiveClass = F2(
 	function (cell_id, model) {
 		var _p0 = model.current_beat;

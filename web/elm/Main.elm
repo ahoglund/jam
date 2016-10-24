@@ -303,10 +303,6 @@ subscriptions model =
     Phoenix.Socket.listen model.phxSocket PhoenixMsg
   ]
 
-interval : Model -> Float
-interval model =
-    0.5 / (toFloat model.bpm)
-
 init : JamFlags -> (Model, Cmd Msg)
 init jamFlags =
   let
