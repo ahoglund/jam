@@ -10,10 +10,23 @@ export class BasicSynth {
     this.eq     = new FourBandEq()
     this.osc    = new Osc("triangle", 220.0)
 
+    this.eq.low_pass.frequency.value = 1000
+    this.eq.band_pass_one.frequency.value = 700
+    this.eq.band_pass_two.frequency.value = 500
     this.osc.output().connect(this.eq.input())
     this.eq.output().connect(this.input())
     this.input().connect(this.output())
     this.volume_off()
+  }
+
+  setFilter(filterType, filterPct) {
+    // It's important to do a power or log scale here instead of linear or
+    // else things get real aggressive real quick
+    var fraction = filterPct / 100
+    var min = 120
+    var filterFreq = Math.pow((audioContext.sampleRate / 2 - min), fraction) + min
+    filter.type = filterType
+    filter.frequency.value = filterFreq
   }
 
   input() {
@@ -42,6 +55,6 @@ export class BasicSynth {
   }
 
   volume_on() {
-    this.volume.value = 1
+    this.volume.value = 10
   }
 }

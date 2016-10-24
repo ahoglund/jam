@@ -16,7 +16,7 @@ export class FourBandEq {
 
     this.high_pass = mixer.createBiquadFilter()
     this.high_pass.type = "highpass"
-    this.high_pass.frequency.value = 140
+    this.high_pass.frequency.value = 30
 
     this.low_pass.connect(this.band_pass_one)
     this.band_pass_one.connect(this.band_pass_two)
