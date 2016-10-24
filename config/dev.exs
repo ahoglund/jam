@@ -35,7 +35,7 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :bad_mamma_jamma, BadMammaJamma.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "drew",
+  username: "hoglundandrew",
   password: "postgres",
   database: "bad_mamma_jamma_dev",
   hostname: "localhost",
