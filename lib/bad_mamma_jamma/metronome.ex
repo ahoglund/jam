@@ -30,6 +30,6 @@ defmodule BadMammaJamma.Metronome do
   end
 
   defp calculate(bpm) do
-    div(60_000, bpm)
+    div(div(60_000, bpm), 4)
   end
 end

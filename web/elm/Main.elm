@@ -24,8 +24,8 @@ type alias Model =
   , current_beat : Maybe Int
   , is_playing : Bool
   , phxSocket : Phoenix.Socket.Socket Msg
-  , jam_id : String
-  , bpm : Int }
+  , bpm : Int
+  , jam_id : String }
 
 socketServer : String
 socketServer =
@@ -37,15 +37,16 @@ initPhxSocket jam_id =
     |> Phoenix.Socket.withDebug
     |> Phoenix.Socket.on "metronome_tick" (jamChannelName ++ jam_id) ReceiveMetronomeTick
     |> Phoenix.Socket.on "update_cell" (jamChannelName ++ jam_id) ReceiveUpdatedCell
+    |> Phoenix.Socket.on "update_bpm" (jamChannelName ++ jam_id) ReceiveUpdatedBpm
 
 initModel : JamFlags -> List Track -> Model
 initModel jamFlags tracks =
   { tracks = tracks
   , total_beats = List.length beatCount
-  , bpm = 120
   , is_playing = False
   , phxSocket = (initPhxSocket jamFlags.jam_id)
   , jam_id = jamFlags.jam_id
+  , bpm = 120
   , current_beat = Nothing }
 
 jamChannelName : String
@@ -64,6 +65,10 @@ decodeMetronomeTick =
   JD.object1 Metronome
     ("tick" := JD.int)
 
+decodeBpm : JD.Decoder Int
+decodeBpm =
+  ("bpm" := JD.int)
+
 decodeCell : JD.Decoder Cell
 decodeCell =
   JD.object3 Cell
@@ -72,8 +77,7 @@ decodeCell =
     ("id" := JD.int)
 
 type Msg
-  = UpdateBpm Int
-  | PlaySound String
+  = PlaySound String
   | Play
   | Stop
   | PlaySynth String
@@ -82,6 +86,8 @@ type Msg
   | ReceiveMetronomeTick JE.Value
   | ReceiveUpdatedCell JE.Value
   | SendUpdatedCell Cell
+  | ReceiveUpdatedBpm JE.Value
+  | SendBpmUpdate Int
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -100,6 +106,12 @@ update msg model =
             tracks = (toggleCells model.tracks updated_cell)
           in
           ({ model | tracks = tracks }, Cmd.none)
+        Err err ->
+          (model, Cmd.none)
+    ReceiveUpdatedBpm raw ->
+      case JD.decodeValue decodeBpm raw of
+        Ok bpm ->
+          ({ model | bpm = bpm }, Cmd.none)
         Err err ->
           (model, Cmd.none)
     SendUpdatedCell updated_cell ->
@@ -125,8 +137,15 @@ update msg model =
           ({ model | current_beat = current_beat }, Cmd.batch (playSounds model current_beat))
         Err err ->
           (model, Cmd.none)
-    UpdateBpm bpm ->
-      ({ model | bpm = bpm }, Cmd.none)
+    SendBpmUpdate bpm ->
+      let
+        payload = (JE.object [ ("bpm",  JE.int bpm)])
+        push' =
+          Phoenix.Push.init "update_bpm" (jamChannelName ++ model.jam_id)
+          |> Phoenix.Push.withPayload payload
+        (phxSocket, phxCmd) = Phoenix.Socket.push push' model.phxSocket
+      in
+        ({ model | phxSocket = phxSocket }, Cmd.map PhoenixMsg phxCmd)
     PlaySound file ->
       (model, Cmds.playSound(file))
     PlaySynth key ->
@@ -283,10 +302,10 @@ buttons model =
       [ span [ class "glyphicon glyphicon-play" ] [] ],
     button [ class "btn btn-danger", onClick Stop ]
       [ span [ class "glyphicon glyphicon-stop" ] [] ],
-    p [ class "btn btn-default", onClick(UpdateBpm 120)] [ text ( "BPM: " ++ toString model.bpm)],
-    button [ class "btn btn-default", onClick (UpdateBpm (model.bpm + 1))]
+    p [ class "btn btn-default", onClick(SendBpmUpdate 120)] [ text ( "BPM: " ++ toString model.bpm)],
+    button [ class "btn btn-default", onClick (SendBpmUpdate (model.bpm + 1))]
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
-    button [ class "btn btn-default", onClick (UpdateBpm (model.bpm - 1))]
+    button [ class "btn btn-default", onClick (SendBpmUpdate (model.bpm - 1))]
       [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
     p [] [ text (toString model) ]
   ]

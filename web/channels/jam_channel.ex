@@ -10,4 +10,10 @@ defmodule BadMammaJamma.JamChannel do
     broadcast! socket, "update_cell", %{id: id, track_id: track_id, is_active: is_active}
     {:noreply, socket}
   end
+
+  def handle_in("update_bpm", %{"bpm" => bpm}, socket) do
+    GenServer.cast({:global, "jam_#{socket.assigns[:jam_id]}_metronome"}, {:set_bpm, bpm})
+    broadcast! socket, "update_bpm", %{bpm: bpm}
+    {:noreply, socket}
+  end
 end
