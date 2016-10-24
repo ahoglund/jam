@@ -16,6 +16,8 @@ import Json.Encode as JE exposing (..)
 import Json.Decode as JD exposing (..)
 import Dict
 import Keys
+import Keys exposing (Key)
+import Keyboard
 import Char
 
 type alias JamFlags =
@@ -34,6 +36,7 @@ type alias Model =
   { tracks : List Track
   , total_beats : Int
   , current_beat : Maybe Int
+  , current_key : Maybe Key
   , is_playing : Bool
   , phxSocket : Phoenix.Socket.Socket Msg
   , bpm : Int
@@ -59,6 +62,7 @@ initModel jamFlags tracks =
   , phxSocket = (initPhxSocket jamFlags.jam_id)
   , jam_id = jamFlags.jam_id
   , bpm = 120
+  , current_key = Nothing
   , current_beat = Nothing }
 
 jamChannelName : String
@@ -90,9 +94,10 @@ decodeCell =
 
 type Msg
   = PlaySound String
+  | NoOp
   | Play
   | Stop
-  | PlaySynth String
+  | PlaySynth (Maybe Key)
   | PhoenixMsg (Phoenix.Socket.Msg Msg)
   | LeaveChannel
   | ReceiveMetronomeTick JE.Value
@@ -104,6 +109,8 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
+    NoOp ->
+      (model, Cmd.none)
     PhoenixMsg msg ->
       let
         ( phxSocket, phxCmd ) = Phoenix.Socket.update msg model.phxSocket
@@ -160,8 +167,12 @@ update msg model =
         ({ model | phxSocket = phxSocket }, Cmd.map PhoenixMsg phxCmd)
     PlaySound file ->
       (model, Cmds.playSound(file))
-    PlaySynth key ->
-      (model, Cmds.playSynth(440.0))
+    PlaySynth maybeKey ->
+      case maybeKey of
+        Nothing ->
+          ({model | current_key = maybeKey}, Cmds.stopSynth("stop"))
+        Just key ->
+          ({model | current_key = maybeKey}, Cmds.playSynth(Keys.toFrequency maybeKey))
     LeaveChannel ->
       let
         (phxSocket, phxCmd) = Phoenix.Socket.leave (jamChannelName ++ model.jam_id) model.phxSocket
@@ -331,9 +342,36 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch [
-    Phoenix.Socket.listen model.phxSocket PhoenixMsg
+    Phoenix.Socket.listen model.phxSocket PhoenixMsg,
+    downs model.current_key,
+    ups model.current_key
   ]
 
+downs : Maybe Key -> Sub Msg
+downs maybeKey =
+  let
+    onKeyDown currentKey keyCode =
+      if Keys.fromKeyCode keyCode == currentKey then
+        NoOp
+      else
+        keyCode |> Keys.fromKeyCode |> PlaySynth
+  in
+    Keyboard.downs (onKeyDown maybeKey)
+
+ups : Maybe Key -> Sub Msg
+ups maybeKey =
+  let
+    onKeyUp currentKeyCode keyCode =
+      if Keys.fromKeyCode keyCode == Just currentKeyCode then
+        PlaySynth Nothing
+      else
+        NoOp
+  in
+    case maybeKey of
+      Nothing ->
+        Sub.none
+      Just key ->
+        Keyboard.ups (onKeyUp key)
 init : JamFlags -> (Model, Cmd Msg)
 init jamFlags =
   let

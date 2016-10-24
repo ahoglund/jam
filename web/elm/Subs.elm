@@ -1,8 +1,7 @@
-module Subs exposing (subscriptions)
+module Subs exposing (..)
 
 import Keys exposing (Key)
 import Keyboard
-import Update exposing (Msg(..))
 
 downs : Maybe Key -> Sub Msg
 downs maybeKey =

@@ -9838,40 +9838,53 @@ var _user$project$Cmds$playRawSynth = _elm_lang$core$Native_Platform.outgoingPor
 var _user$project$Cmds$playSynth = function (freq) {
 	return _user$project$Cmds$playRawSynth(freq);
 };
+var _user$project$Cmds$stopRawSynth = _elm_lang$core$Native_Platform.outgoingPort(
+	'stopRawSynth',
+	function (v) {
+		return v;
+	});
+var _user$project$Cmds$stopSynth = function (dummy) {
+	return _user$project$Cmds$stopRawSynth(dummy);
+};
 
-var _user$project$Keys$toFrequency = function (key) {
-	var _p0 = key;
-	switch (_p0.ctor) {
-		case 'C3':
-			return 130.81;
-		case 'CS3':
-			return 138.59;
-		case 'D3':
-			return 146.83;
-		case 'DS3':
-			return 155.56;
-		case 'E3':
-			return 164.81;
-		case 'F3':
-			return 174.61;
-		case 'FS3':
-			return 185.0;
-		case 'G3':
-			return 196.0;
-		case 'GS3':
-			return 207.65;
-		case 'A3':
-			return 220.0;
-		case 'AS3':
-			return 233.08;
-		case 'B3':
-			return 246.94;
-		case 'C4':
-			return 261.63;
-		case 'CS4':
-			return 277.18;
-		default:
-			return 293.67;
+var _user$project$Keys$toFrequency = function (maybeKey) {
+	var _p0 = maybeKey;
+	if (_p0.ctor === 'Nothing') {
+		return 0.0;
+	} else {
+		var _p1 = _p0._0;
+		switch (_p1.ctor) {
+			case 'C3':
+				return 130.81;
+			case 'CS3':
+				return 138.59;
+			case 'D3':
+				return 146.83;
+			case 'DS3':
+				return 155.56;
+			case 'E3':
+				return 164.81;
+			case 'F3':
+				return 174.61;
+			case 'FS3':
+				return 185.0;
+			case 'G3':
+				return 196.0;
+			case 'GS3':
+				return 207.65;
+			case 'A3':
+				return 220.0;
+			case 'AS3':
+				return 233.08;
+			case 'B3':
+				return 246.94;
+			case 'C4':
+				return 261.63;
+			case 'CS4':
+				return 277.18;
+			default:
+				return 293.67;
+		}
 	}
 };
 var _user$project$Keys$D4 = {ctor: 'D4'};
@@ -10090,9 +10103,9 @@ var _user$project$Main$socketServer = 'ws://localhost:4000/socket/websocket';
 var _user$project$Main$JamFlags = function (a) {
 	return {jam_id: a};
 };
-var _user$project$Main$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {tracks: a, total_beats: b, current_beat: c, is_playing: d, phxSocket: e, bpm: f, jam_id: g};
+var _user$project$Main$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {tracks: a, total_beats: b, current_beat: c, current_key: d, is_playing: e, phxSocket: f, bpm: g, jam_id: h};
 	});
 var _user$project$Main$Metronome = function (a) {
 	return {tick: a};
@@ -10249,6 +10262,7 @@ var _user$project$Main$initModel = F2(
 			phxSocket: _user$project$Main$initPhxSocket(jamFlags.jam_id),
 			jam_id: jamFlags.jam_id,
 			bpm: 120,
+			current_key: _elm_lang$core$Maybe$Nothing,
 			current_beat: _elm_lang$core$Maybe$Nothing
 		};
 	});
@@ -10260,6 +10274,8 @@ var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p4 = msg;
 		switch (_p4.ctor) {
+			case 'NoOp':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'PhoenixMsg':
 				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p4._0, model.phxSocket);
 				var phxSocket = _p5._0;
@@ -10386,18 +10402,33 @@ var _user$project$Main$update = F2(
 					_1: _user$project$Cmds$playSound(_p4._0)
 				};
 			case 'PlaySynth':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Cmds$playSynth(440.0)
-				};
+				var _p13 = _p4._0;
+				var _p12 = _p13;
+				if (_p12.ctor === 'Nothing') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{current_key: _p13}),
+						_1: _user$project$Cmds$stopSynth('stop')
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{current_key: _p13}),
+						_1: _user$project$Cmds$playSynth(
+							_user$project$Keys$toFrequency(_p13))
+					};
+				}
 			case 'LeaveChannel':
-				var _p12 = A2(
+				var _p14 = A2(
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$leave,
 					A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id),
 					model.phxSocket);
-				var phxSocket = _p12._0;
-				var phxCmd = _p12._1;
+				var phxSocket = _p14._0;
+				var phxCmd = _p14._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10432,13 +10463,6 @@ var _user$project$Main$update = F2(
 				};
 		}
 	});
-var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg)
-			]));
-};
 var _user$project$Main$init = function (jamFlags) {
 	var model = A2(
 		_user$project$Main$initModel,
@@ -10446,9 +10470,9 @@ var _user$project$Main$init = function (jamFlags) {
 		_user$project$Track$defaultTracks(_user$project$Main$beatCount));
 	var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
 		A2(_elm_lang$core$Basics_ops['++'], _user$project$Main$jamChannelName, model.jam_id));
-	var _p13 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
-	var phxSocket = _p13._0;
-	var phxCmd = _p13._1;
+	var _p15 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
+	var phxSocket = _p15._0;
+	var phxCmd = _p15._1;
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
@@ -10581,6 +10605,42 @@ var _user$project$Main$view = function (model) {
 			[
 				_user$project$Main$stepEditorSection(model),
 				_user$project$Main$buttons(model)
+			]));
+};
+var _user$project$Main$NoOp = {ctor: 'NoOp'};
+var _user$project$Main$downs = function (maybeKey) {
+	var onKeyDown = F2(
+		function (currentKey, keyCode) {
+			return _elm_lang$core$Native_Utils.eq(
+				_user$project$Keys$fromKeyCode(keyCode),
+				currentKey) ? _user$project$Main$NoOp : _user$project$Main$PlaySynth(
+				_user$project$Keys$fromKeyCode(keyCode));
+		});
+	return _elm_lang$keyboard$Keyboard$downs(
+		onKeyDown(maybeKey));
+};
+var _user$project$Main$ups = function (maybeKey) {
+	var onKeyUp = F2(
+		function (currentKeyCode, keyCode) {
+			return _elm_lang$core$Native_Utils.eq(
+				_user$project$Keys$fromKeyCode(keyCode),
+				_elm_lang$core$Maybe$Just(currentKeyCode)) ? _user$project$Main$PlaySynth(_elm_lang$core$Maybe$Nothing) : _user$project$Main$NoOp;
+		});
+	var _p16 = maybeKey;
+	if (_p16.ctor === 'Nothing') {
+		return _elm_lang$core$Platform_Sub$none;
+	} else {
+		return _elm_lang$keyboard$Keyboard$ups(
+			onKeyUp(_p16._0));
+	}
+};
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg),
+				_user$project$Main$downs(model.current_key),
+				_user$project$Main$ups(model.current_key)
 			]));
 };
 var _user$project$Main$main = {

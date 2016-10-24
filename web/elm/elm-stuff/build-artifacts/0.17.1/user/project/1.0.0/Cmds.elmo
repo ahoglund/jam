@@ -14,3 +14,11 @@ var _user$project$Cmds$playRawSynth = _elm_lang$core$Native_Platform.outgoingPor
 var _user$project$Cmds$playSynth = function (freq) {
 	return _user$project$Cmds$playRawSynth(freq);
 };
+var _user$project$Cmds$stopRawSynth = _elm_lang$core$Native_Platform.outgoingPort(
+	'stopRawSynth',
+	function (v) {
+		return v;
+	});
+var _user$project$Cmds$stopSynth = function (dummy) {
+	return _user$project$Cmds$stopRawSynth(dummy);
+};
