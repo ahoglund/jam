@@ -17,6 +17,6 @@ export class Osc {
   }
 
   frequency(freq) {
-    this.osc.frequency.value = freq
+    this.osc.frequency.setValueAtTime(freq, mixer.currentTime)
   }
 }

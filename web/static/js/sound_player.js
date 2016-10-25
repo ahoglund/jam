@@ -11,7 +11,7 @@ function getSample(sample_file) {
         var source  = mixer.createBufferSource();
         source.connect(mixer.destination);
         source.buffer = playBuffer;
-        source.start(0);
+        source.start(mixer.currentTime);
       },
       function(e){"Error decoding sample data" + e.err});
   }

@@ -9855,35 +9855,35 @@ var _user$project$Keys$toFrequency = function (maybeKey) {
 		var _p1 = _p0._0;
 		switch (_p1.ctor) {
 			case 'C3':
-				return 130.81 / 2;
+				return 130.81 / 3;
 			case 'CS3':
-				return 138.59 / 2;
+				return 138.59 / 3;
 			case 'D3':
-				return 146.83 / 2;
+				return 146.83 / 3;
 			case 'DS3':
-				return 155.56 / 2;
+				return 155.56 / 3;
 			case 'E3':
-				return 164.81 / 2;
+				return 164.81 / 3;
 			case 'F3':
-				return 174.61 / 2;
+				return 174.61 / 3;
 			case 'FS3':
-				return 185.0 / 2;
+				return 185.0 / 3;
 			case 'G3':
-				return 196.0 / 2;
+				return 196.0 / 3;
 			case 'GS3':
-				return 207.65 / 2;
+				return 207.65 / 3;
 			case 'A3':
-				return 220.0 / 2;
+				return 220.0 / 3;
 			case 'AS3':
-				return 233.08 / 2;
+				return 233.08 / 3;
 			case 'B3':
-				return 246.94 / 2;
+				return 246.94 / 3;
 			case 'C4':
-				return 261.63 / 2;
+				return 261.63 / 3;
 			case 'CS4':
-				return 277.18 / 2;
+				return 277.18 / 3;
 			default:
-				return 293.67 / 2;
+				return 293.67 / 3;
 		}
 	}
 };
