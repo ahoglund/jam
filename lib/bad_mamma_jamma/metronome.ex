@@ -10,12 +10,12 @@ defmodule BadMammaJamma.Metronome do
   end
 
   def init(%{jam_id: jam_id, tick: tick, bpm: bpm}) do
-    Process.send_after(self, :tick, calculate(bpm))
+    Process.send_after(self, :tick, calculate(tick,bpm))
     {:ok, %{jam_id: jam_id, tick: tick + 1, bpm: bpm}}
   end
 
   def handle_info(:tick, %{jam_id: jam_id, tick: tick, bpm: bpm}) do
-    Process.send_after(self, :tick, calculate(bpm))
+    Process.send_after(self, :tick, calculate(tick,bpm))
     BadMammaJamma.Endpoint.broadcast_from! self(), "jam:room:#{jam_id}",
       "metronome_tick", %{jam_id: jam_id, tick: tick, bpm: bpm}
     {:noreply, %{jam_id: jam_id, tick: tick + 1, bpm: bpm}}
@@ -29,7 +29,11 @@ defmodule BadMammaJamma.Metronome do
     {:reply, state, state}
   end
 
-  defp calculate(bpm) do
+  defp calculate(tick, bpm) when rem(tick, 2) == 0 do
+    div(div(60_000, bpm), 4)
+  end
+
+  defp calculate(_tick, bpm) do
     div(div(60_000, bpm), 4)
   end
 end
