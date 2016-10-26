@@ -34,13 +34,19 @@ defaultTracks total_cells =
        3
        (List.map (\cell_id -> Cell.init cell_id 3) total_cells)
        "HH Closed"
-       "/samples/hh-closed.wav"
+       "/samples/hh-big.wav"
     ),
     (init
        4
        (List.map (\cell_id -> Cell.init cell_id 4) total_cells)
        "HH Open"
-       "/samples/hh-open.wav"
+       "/samples/hh-small.wav"
+    ),
+    (init
+       5
+       (List.map (\cell_id -> Cell.init cell_id 5) total_cells)
+       "Sample"
+       "/samples/its_alive.wav"
     )
   ]
 

@@ -12,6 +12,9 @@ export class Osc {
     return this.osc
   }
 
+  input() {
+    return this.osc
+  }
   waveform(type) {
     this.osc.type = type
   }

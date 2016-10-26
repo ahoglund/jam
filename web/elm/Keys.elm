@@ -8,7 +8,6 @@ type Key
   = C3 | CS3 | D3 | DS3 | E3 | F3 | FS3 | G3 | GS3 | A3 | AS3 | B3
   | C4 | CS4 | D4
 
-
 keyCodeToKey : Dict KeyCode Key
 keyCodeToKey =
   Dict.fromList
