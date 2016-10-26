@@ -10,13 +10,15 @@ export class BasicSynth {
     this.eq     = new FourBandEq()
     this.osc    = new Osc("triangle", 220.0)
     this.osc_2  = new Osc("sine", 220.0)
+    this.osc_3  = new Osc("square", 220.0)
 
-    this.eq.low_pass.frequency.value = 7000
+    this.eq.low_pass.frequency.value = 1000
     this.eq.band_pass_one.frequency.value = 500
     this.eq.band_pass_two.frequency.value = 300
 
     this.osc.output().connect(this.eq.input())
     this.osc_2.output().connect(this.eq.input())
+    this.osc_3.output().connect(this.eq.input())
     this.eq.output().connect(this.input())
     this.input().connect(this.output())
     this.volume_off()
@@ -33,6 +35,7 @@ export class BasicSynth {
   note_on(freq) {
     this.osc.frequency(freq);
     this.osc_2.frequency(freq);
+    this.osc_3.frequency(freq);
     this.volume_on()
   }
 
@@ -45,6 +48,6 @@ export class BasicSynth {
   }
 
   volume_on() {
-    this.volume.value = 12
+    this.volume.value = 1
   }
 }
