@@ -30,10 +30,10 @@ defmodule BadMammaJamma.Metronome do
   end
 
   defp calculate(tick, bpm) when rem(tick, 2) == 0 do
-    div(div(60_000, bpm), 4)
+    div(div(60_000, bpm), 4) - 1
   end
 
   defp calculate(_tick, bpm) do
-    div(div(60_000, bpm), 4)
+    div(div(60_000, bpm), 4) - 1
   end
 end

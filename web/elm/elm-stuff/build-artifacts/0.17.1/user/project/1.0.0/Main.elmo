@@ -623,7 +623,7 @@ var _user$project$Main$view = function (model) {
 			]));
 };
 var _user$project$Main$NoOp = {ctor: 'NoOp'};
-var _user$project$Main$downs = function (maybeKey) {
+var _user$project$Main$bass_key_down = function (maybeKey) {
 	var onKeyDown = F2(
 		function (currentKey, keyCode) {
 			return _elm_lang$core$Native_Utils.eq(
@@ -634,7 +634,7 @@ var _user$project$Main$downs = function (maybeKey) {
 	return _elm_lang$keyboard$Keyboard$downs(
 		onKeyDown(maybeKey));
 };
-var _user$project$Main$ups = function (maybeKey) {
+var _user$project$Main$base_key_up = function (maybeKey) {
 	var onKeyUp = F2(
 		function (currentKeyCode, keyCode) {
 			return _elm_lang$core$Native_Utils.eq(
@@ -654,8 +654,8 @@ var _user$project$Main$subscriptions = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg),
-				_user$project$Main$downs(model.current_key),
-				_user$project$Main$ups(model.current_key)
+				_user$project$Main$bass_key_down(model.current_key),
+				_user$project$Main$base_key_up(model.current_key)
 			]));
 };
 var _user$project$Main$main = {

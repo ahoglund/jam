@@ -13,5 +13,5 @@ playSynth freq =
   playRawSynth freq
 
 stopSynth : String -> Cmd msg
-stopSynth dummy =
-  stopRawSynth dummy
+stopSynth a =
+  stopRawSynth a

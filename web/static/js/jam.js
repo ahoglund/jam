@@ -9,3 +9,6 @@ elmApp.ports.playRawSynth.subscribe(function (freq) {
 elmApp.ports.stopRawSynth.subscribe(function () {
   basic_synth.note_off();
 });
+
+
+

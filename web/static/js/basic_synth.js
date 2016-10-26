@@ -19,16 +19,6 @@ export class BasicSynth {
     this.volume_off()
   }
 
-  setFilter(filterType, filterPct) {
-    // It's important to do a power or log scale here instead of linear or
-    // else things get real aggressive real quick
-    var fraction = filterPct / 100
-    var min = 120
-    var filterFreq = Math.pow((audioContext.sampleRate / 2 - min), fraction) + min
-    filter.type = filterType
-    filter.frequency.value = filterFreq
-  }
-
   input() {
     return this.gain
   }

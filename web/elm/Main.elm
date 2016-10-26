@@ -343,12 +343,12 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch [
     Phoenix.Socket.listen model.phxSocket PhoenixMsg,
-    downs model.current_key,
-    ups model.current_key
+    bass_key_down model.current_key,
+    base_key_up model.current_key
   ]
 
-downs : Maybe Key -> Sub Msg
-downs maybeKey =
+bass_key_down : Maybe Key -> Sub Msg
+bass_key_down maybeKey =
   let
     onKeyDown currentKey keyCode =
       if Keys.fromKeyCode keyCode == currentKey then
@@ -358,8 +358,8 @@ downs maybeKey =
   in
     Keyboard.downs (onKeyDown maybeKey)
 
-ups : Maybe Key -> Sub Msg
-ups maybeKey =
+base_key_up : Maybe Key -> Sub Msg
+base_key_up maybeKey =
   let
     onKeyUp currentKeyCode keyCode =
       if Keys.fromKeyCode keyCode == Just currentKeyCode then

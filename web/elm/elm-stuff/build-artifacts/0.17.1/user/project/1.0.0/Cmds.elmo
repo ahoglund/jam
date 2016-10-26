@@ -19,6 +19,6 @@ var _user$project$Cmds$stopRawSynth = _elm_lang$core$Native_Platform.outgoingPor
 	function (v) {
 		return v;
 	});
-var _user$project$Cmds$stopSynth = function (dummy) {
-	return _user$project$Cmds$stopRawSynth(dummy);
+var _user$project$Cmds$stopSynth = function (a) {
+	return _user$project$Cmds$stopRawSynth(a);
 };
