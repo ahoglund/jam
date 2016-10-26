@@ -302,9 +302,9 @@ stepEditorCell model track cell =
 setActiveCell : Track -> Cell -> String
 setActiveCell track beat =
   if beat.is_active == True && beat.track_id == track.id then
-    "success"
+    "selected"
   else
-    ""
+    "deselected"
 
 setActiveClass : Int -> Model -> String
 setActiveClass cell_id model =
@@ -313,9 +313,9 @@ setActiveClass cell_id model =
       "inactive"
     Just beat ->
       if model.is_playing == True && cell_id == beat then
-        "active"
+        "activated"
       else
-        "inactive"
+        "deactivated"
 
 buttons : Model -> Html Msg
 buttons model =
@@ -329,8 +329,7 @@ buttons model =
     button [ class "btn btn-default", onClick (SendBpmUpdate (model.bpm + 1))]
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
     button [ class "btn btn-default", onClick (SendBpmUpdate (model.bpm - 1))]
-      [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
-    p [] [ text (toString model) ]
+      [ span [ class "glyphicon glyphicon-arrow-down" ] [] ]
   ]
 
 view : Model -> Html Msg

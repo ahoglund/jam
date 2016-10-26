@@ -12,9 +12,10 @@ export class BasicSynth {
     this.osc_2  = new Osc("sine", 220.0)
     this.osc_3  = new Osc("square", 220.0)
 
-    this.eq.low_pass.frequency.value = 1000
-    this.eq.band_pass_one.frequency.value = 500
-    this.eq.band_pass_two.frequency.value = 300
+    this.eq.low_pass.frequency.value      = 1000
+    this.eq.band_pass_one.frequency.value = 300
+    this.eq.band_pass_two.frequency.value = 100
+    this.eq.high_pass.frequency.value     = 40
 
     this.osc.output().connect(this.eq.input())
     this.osc_2.output().connect(this.eq.input())
@@ -48,6 +49,6 @@ export class BasicSynth {
   }
 
   volume_on() {
-    this.volume.value = 1
+    this.volume.value = 3
   }
 }

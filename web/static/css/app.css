@@ -2,27 +2,8 @@
 body, form, ul, table {
   padding-top: 50px;
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 60px;
   background-color: #f3f4f6;
-}
-
-.table>tbody>tr>td.success {
-  background-color: #999da0;
-}
-.inactive {
-  background-color: #e1e4e9;
-}
-
-.active {
-  background-color: #e1e4e9;
-}
-
-.table>tbody>tr>td.success:hover {
-  background-color: #73777a;
-}
-
-.navbar-inverse {
-  background-color: #000209;
 }
 
 /* Phoenix flash messages */
@@ -97,10 +78,7 @@ html {
   position: relative;
   min-height: 100%;
 }
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
-}
+
 .footer {
   position: absolute;
   bottom: 0;
@@ -117,7 +95,7 @@ body {
 
 .container {
   width: auto;
-  max-width: 690px;
+  max-width: 980px;
   padding: 0 15px;
 }
 
@@ -125,10 +103,10 @@ body {
   margin: 20px 0;
 }
 
-
 .tile-content {
   font-size: 130px;
 }
+
 .footer > .container {
   padding-right: 15px;
   padding-left: 15px;
@@ -143,11 +121,13 @@ code {
   margin-bottom: 10px;
   font-size: 64px;
 }
+
 #padboard {
   list-style: none;
   padding: 0px;
   margin: 0px;
 }
+
 #padboard li a {
   float: left;
   margin: 0px;
@@ -159,16 +139,6 @@ code {
   text-align: center;
   background-color: #f9f9f9;
   border: 1px solid #eee;
-}
-.container {
-  width: auto;
-  max-width: 970px;
-  padding: 0 15px;
-}
-
-.current-beat {
-  background-color: black;
-  color: white;
 }
 
 th {
@@ -182,6 +152,18 @@ td {
 
 td.sample {
   width: 120px;
+}
+
+.activated {
+  background-color: #73777a;
+}
+
+.deactivated {
+  background-color: #FFF;
+}
+
+.selected {
+  background-color: #999da0;
 }
 
 .btn {

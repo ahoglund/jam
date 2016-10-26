@@ -10000,12 +10000,12 @@ var _user$project$Main$setActiveClass = F2(
 		if (_p0.ctor === 'Nothing') {
 			return 'inactive';
 		} else {
-			return (_elm_lang$core$Native_Utils.eq(model.is_playing, true) && _elm_lang$core$Native_Utils.eq(cell_id, _p0._0)) ? 'active' : 'inactive';
+			return (_elm_lang$core$Native_Utils.eq(model.is_playing, true) && _elm_lang$core$Native_Utils.eq(cell_id, _p0._0)) ? 'activated' : 'deactivated';
 		}
 	});
 var _user$project$Main$setActiveCell = F2(
 	function (track, beat) {
-		return (_elm_lang$core$Native_Utils.eq(beat.is_active, true) && _elm_lang$core$Native_Utils.eq(beat.track_id, track.id)) ? 'success' : '';
+		return (_elm_lang$core$Native_Utils.eq(beat.is_active, true) && _elm_lang$core$Native_Utils.eq(beat.track_id, track.id)) ? 'selected' : 'deselected';
 	});
 var _user$project$Main$stepEditorTableHeader = function (model) {
 	return A2(
@@ -10593,15 +10593,6 @@ var _user$project$Main$buttons = function (model) {
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[]))
-					])),
-				A2(
-				_elm_lang$html$Html$p,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(
-						_elm_lang$core$Basics$toString(model))
 					]))
 			]));
 };
