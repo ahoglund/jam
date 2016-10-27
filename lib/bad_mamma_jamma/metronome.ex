@@ -29,10 +29,6 @@ defmodule BadMammaJamma.Metronome do
     {:reply, state, state}
   end
 
-  defp calculate(tick, bpm) when rem(tick, 2) == 0 do
-    div(div(60_000, bpm), 4)
-  end
-
   defp calculate(_tick, bpm) do
     div(div(60_000, bpm), 4)
   end

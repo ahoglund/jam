@@ -23,7 +23,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Bad Mamma Jamma</a>
+          <a class="navbar-brand" href="<%= jam_path(@conn, :index) %>">Bad Mamma Jamma</a>
         </div>
       </div>
         </nav>
