@@ -36,7 +36,7 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 					return A2(_user$project$Cell$init, cell_id, 3);
 				},
 				total_cells),
-			'HH Closed',
+			'HH 1',
 			'/samples/hh-big.wav'),
 			A4(
 			_user$project$Track$init,
@@ -47,19 +47,8 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 					return A2(_user$project$Cell$init, cell_id, 4);
 				},
 				total_cells),
-			'HH Open',
-			'/samples/hh-small.wav'),
-			A4(
-			_user$project$Track$init,
-			5,
-			A2(
-				_elm_lang$core$List$map,
-				function (cell_id) {
-					return A2(_user$project$Cell$init, cell_id, 5);
-				},
-				total_cells),
-			'Sample',
-			'/samples/its_alive.wav')
+			'HH 2',
+			'/samples/hh-small.wav')
 		]);
 };
 var _user$project$Track$Track = F4(

@@ -329,14 +329,16 @@ buttons model =
     button [ class "btn btn-default", onClick (SendBpmUpdate (model.bpm + 1))]
       [ span [ class "glyphicon glyphicon-arrow-up" ] [] ],
     button [ class "btn btn-default", onClick (SendBpmUpdate (model.bpm - 1))]
-      [ span [ class "glyphicon glyphicon-arrow-down" ] [] ]
+      [ span [ class "glyphicon glyphicon-arrow-down" ] [] ],
+    button [ class "btn btn-warning", onClick (PlaySound "/samples/its_alive.wav")]
+      [ text "!!!" ]
   ]
 
 view : Model -> Html Msg
 view model =
     div [ class "container" ]
-        [ stepEditorSection model,
-          buttons model ]
+        [ stepEditorSection model
+        , buttons model ]
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

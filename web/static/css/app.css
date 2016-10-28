@@ -2,7 +2,7 @@
 body, form, ul, table {
   padding-top: 50px;
   margin-top: 20px;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
   background-color: #f3f4f6;
 }
 
@@ -148,6 +148,10 @@ th {
 td {
   width: 40.5px;
   height: 20.5px;
+}
+
+.jam-tile {
+  margin-bottom: 15%;
 }
 
 td.sample {

@@ -8,18 +8,16 @@ export class BasicSynth {
     this.dest   = mixer.destination
     this.volume = this.gain.gain
     this.eq     = new FourBandEq()
-    this.osc    = new Osc("square", 220.0)
+    this.osc    = new Osc("triangle", 220.0)
     this.osc_2  = new Osc("sine", 220.0)
-    this.convolver = mixer.createConvolver();
 
     this.eq.low_pass.frequency.value      = 5000
-    this.eq.band_pass_one.frequency.value = 2000
-    this.eq.band_pass_two.frequency.value = 2000
+    this.eq.band_pass_one.frequency.value = 400
+    this.eq.band_pass_two.frequency.value = 300
     this.eq.high_pass.frequency.value     = 40
 
     this.osc.output().connect(this.eq.input())
     this.osc_2.output().connect(this.eq.input())
-    this.convolver.connect(this.eq.input())
     this.eq.output().connect(this.input())
     this.input().connect(this.output())
     this.volume_off()

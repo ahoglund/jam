@@ -5,29 +5,26 @@ import Keyboard exposing (KeyCode)
 import Maybe exposing (Maybe)
 
 type Key
-  = C3 | CS3 | D3 | DS3 | E3 | F3 | FS3 | G3 | GS3 | A3 | AS3 | B3
-  | C4 | CS4 | D4
+  = C2 | CS2 | D2 | DS2 | E2 | F2 | FS2 | G2 | GS2 | A2 | AS2 | B2
+  | C3
 
 keyCodeToKey : Dict KeyCode Key
 keyCodeToKey =
   Dict.fromList
-    [ (65, C3)
-    , (87, CS3)
-    , (83, D3)
-    , (69, DS3)
-    , (68, E3)
-    , (70, F3)
-    , (84, FS3)
-    , (71, G3)
-    , (89, GS3)
-    , (72, A3)
-    , (85, AS3)
-    , (74, B3)
-    , (75, C4)
-    , (79, CS4)
-    , (76, D4)
+    [ (65, C2)
+    , (87, CS2)
+    , (83, D2)
+    , (69, DS2)
+    , (68, E2)
+    , (70, F2)
+    , (84, FS2)
+    , (71, G2)
+    , (89, GS2)
+    , (72, A2)
+    , (85, AS2)
+    , (74, B2)
+    , (75, C3)
     ]
-
 
 fromKeyCode : KeyCode -> Maybe Key
 fromKeyCode keyCode =
@@ -41,18 +38,16 @@ toFrequency maybeKey =
       0.0
     Just key ->
       case key of
-        C3 -> 130.81 / 3
-        CS3 -> 138.59 / 3
-        D3 -> 146.83 / 3
-        DS3 -> 155.56 / 3
-        E3 -> 164.81 / 3
-        F3 -> 174.61 / 3
-        FS3 -> 185.0 / 3
-        G3 -> 196.0 / 3
-        GS3 -> 207.65 / 3
-        A3 -> 220.0 / 3
-        AS3 -> 233.08 / 3
-        B3 -> 246.94 / 3
-        C4 -> 261.63 / 3
-        CS4 -> 277.18 / 3
-        D4 -> 293.67 / 3
+        C2 -> 65.41
+        CS2 -> 69.30
+        D2 -> 73.42
+        DS2 -> 77.78
+        E2 -> 82.41
+        F2 -> 87.31
+        FS2 -> 92.50
+        G2 -> 98.00
+        GS2 -> 103.83
+        A2 -> 110.00
+        AS2 -> 116.54
+        B2 -> 123.47
+        C3 -> 130.81

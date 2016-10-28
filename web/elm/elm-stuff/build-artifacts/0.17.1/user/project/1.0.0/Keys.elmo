@@ -5,72 +5,64 @@ var _user$project$Keys$toFrequency = function (maybeKey) {
 	} else {
 		var _p1 = _p0._0;
 		switch (_p1.ctor) {
-			case 'C3':
-				return 130.81 / 3;
-			case 'CS3':
-				return 138.59 / 3;
-			case 'D3':
-				return 146.83 / 3;
-			case 'DS3':
-				return 155.56 / 3;
-			case 'E3':
-				return 164.81 / 3;
-			case 'F3':
-				return 174.61 / 3;
-			case 'FS3':
-				return 185.0 / 3;
-			case 'G3':
-				return 196.0 / 3;
-			case 'GS3':
-				return 207.65 / 3;
-			case 'A3':
-				return 220.0 / 3;
-			case 'AS3':
-				return 233.08 / 3;
-			case 'B3':
-				return 246.94 / 3;
-			case 'C4':
-				return 261.63 / 3;
-			case 'CS4':
-				return 277.18 / 3;
+			case 'C2':
+				return 65.41;
+			case 'CS2':
+				return 69.3;
+			case 'D2':
+				return 73.42;
+			case 'DS2':
+				return 77.78;
+			case 'E2':
+				return 82.41;
+			case 'F2':
+				return 87.31;
+			case 'FS2':
+				return 92.5;
+			case 'G2':
+				return 98.0;
+			case 'GS2':
+				return 103.83;
+			case 'A2':
+				return 110.0;
+			case 'AS2':
+				return 116.54;
+			case 'B2':
+				return 123.47;
 			default:
-				return 293.67 / 3;
+				return 130.81;
 		}
 	}
 };
-var _user$project$Keys$D4 = {ctor: 'D4'};
-var _user$project$Keys$CS4 = {ctor: 'CS4'};
-var _user$project$Keys$C4 = {ctor: 'C4'};
-var _user$project$Keys$B3 = {ctor: 'B3'};
-var _user$project$Keys$AS3 = {ctor: 'AS3'};
-var _user$project$Keys$A3 = {ctor: 'A3'};
-var _user$project$Keys$GS3 = {ctor: 'GS3'};
-var _user$project$Keys$G3 = {ctor: 'G3'};
-var _user$project$Keys$FS3 = {ctor: 'FS3'};
-var _user$project$Keys$F3 = {ctor: 'F3'};
-var _user$project$Keys$E3 = {ctor: 'E3'};
-var _user$project$Keys$DS3 = {ctor: 'DS3'};
-var _user$project$Keys$D3 = {ctor: 'D3'};
-var _user$project$Keys$CS3 = {ctor: 'CS3'};
 var _user$project$Keys$C3 = {ctor: 'C3'};
+var _user$project$Keys$B2 = {ctor: 'B2'};
+var _user$project$Keys$AS2 = {ctor: 'AS2'};
+var _user$project$Keys$A2 = {ctor: 'A2'};
+var _user$project$Keys$GS2 = {ctor: 'GS2'};
+var _user$project$Keys$G2 = {ctor: 'G2'};
+var _user$project$Keys$FS2 = {ctor: 'FS2'};
+var _user$project$Keys$F2 = {ctor: 'F2'};
+var _user$project$Keys$E2 = {ctor: 'E2'};
+var _user$project$Keys$DS2 = {ctor: 'DS2'};
+var _user$project$Keys$D2 = {ctor: 'D2'};
+var _user$project$Keys$CS2 = {ctor: 'CS2'};
+var _user$project$Keys$C2 = {ctor: 'C2'};
 var _user$project$Keys$keyCodeToKey = _elm_lang$core$Dict$fromList(
 	_elm_lang$core$Native_List.fromArray(
 		[
-			{ctor: '_Tuple2', _0: 65, _1: _user$project$Keys$C3},
-			{ctor: '_Tuple2', _0: 87, _1: _user$project$Keys$CS3},
-			{ctor: '_Tuple2', _0: 83, _1: _user$project$Keys$D3},
-			{ctor: '_Tuple2', _0: 69, _1: _user$project$Keys$DS3},
-			{ctor: '_Tuple2', _0: 68, _1: _user$project$Keys$E3},
-			{ctor: '_Tuple2', _0: 70, _1: _user$project$Keys$F3},
-			{ctor: '_Tuple2', _0: 84, _1: _user$project$Keys$FS3},
-			{ctor: '_Tuple2', _0: 71, _1: _user$project$Keys$G3},
-			{ctor: '_Tuple2', _0: 89, _1: _user$project$Keys$GS3},
-			{ctor: '_Tuple2', _0: 72, _1: _user$project$Keys$A3},
-			{ctor: '_Tuple2', _0: 85, _1: _user$project$Keys$AS3},
-			{ctor: '_Tuple2', _0: 74, _1: _user$project$Keys$B3},
-			{ctor: '_Tuple2', _0: 75, _1: _user$project$Keys$C4},
-			{ctor: '_Tuple2', _0: 79, _1: _user$project$Keys$CS4},
-			{ctor: '_Tuple2', _0: 76, _1: _user$project$Keys$D4}
+			{ctor: '_Tuple2', _0: 65, _1: _user$project$Keys$C2},
+			{ctor: '_Tuple2', _0: 87, _1: _user$project$Keys$CS2},
+			{ctor: '_Tuple2', _0: 83, _1: _user$project$Keys$D2},
+			{ctor: '_Tuple2', _0: 69, _1: _user$project$Keys$DS2},
+			{ctor: '_Tuple2', _0: 68, _1: _user$project$Keys$E2},
+			{ctor: '_Tuple2', _0: 70, _1: _user$project$Keys$F2},
+			{ctor: '_Tuple2', _0: 84, _1: _user$project$Keys$FS2},
+			{ctor: '_Tuple2', _0: 71, _1: _user$project$Keys$G2},
+			{ctor: '_Tuple2', _0: 89, _1: _user$project$Keys$GS2},
+			{ctor: '_Tuple2', _0: 72, _1: _user$project$Keys$A2},
+			{ctor: '_Tuple2', _0: 85, _1: _user$project$Keys$AS2},
+			{ctor: '_Tuple2', _0: 74, _1: _user$project$Keys$B2},
+			{ctor: '_Tuple2', _0: 75, _1: _user$project$Keys$C3}
 		]));
 var _user$project$Keys$fromKeyCode = function (keyCode) {
 	return A2(_elm_lang$core$Dict$get, keyCode, _user$project$Keys$keyCodeToKey);

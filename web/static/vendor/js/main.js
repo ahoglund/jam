@@ -9854,72 +9854,64 @@ var _user$project$Keys$toFrequency = function (maybeKey) {
 	} else {
 		var _p1 = _p0._0;
 		switch (_p1.ctor) {
-			case 'C3':
-				return 130.81 / 3;
-			case 'CS3':
-				return 138.59 / 3;
-			case 'D3':
-				return 146.83 / 3;
-			case 'DS3':
-				return 155.56 / 3;
-			case 'E3':
-				return 164.81 / 3;
-			case 'F3':
-				return 174.61 / 3;
-			case 'FS3':
-				return 185.0 / 3;
-			case 'G3':
-				return 196.0 / 3;
-			case 'GS3':
-				return 207.65 / 3;
-			case 'A3':
-				return 220.0 / 3;
-			case 'AS3':
-				return 233.08 / 3;
-			case 'B3':
-				return 246.94 / 3;
-			case 'C4':
-				return 261.63 / 3;
-			case 'CS4':
-				return 277.18 / 3;
+			case 'C2':
+				return 65.41;
+			case 'CS2':
+				return 69.3;
+			case 'D2':
+				return 73.42;
+			case 'DS2':
+				return 77.78;
+			case 'E2':
+				return 82.41;
+			case 'F2':
+				return 87.31;
+			case 'FS2':
+				return 92.5;
+			case 'G2':
+				return 98.0;
+			case 'GS2':
+				return 103.83;
+			case 'A2':
+				return 110.0;
+			case 'AS2':
+				return 116.54;
+			case 'B2':
+				return 123.47;
 			default:
-				return 293.67 / 3;
+				return 130.81;
 		}
 	}
 };
-var _user$project$Keys$D4 = {ctor: 'D4'};
-var _user$project$Keys$CS4 = {ctor: 'CS4'};
-var _user$project$Keys$C4 = {ctor: 'C4'};
-var _user$project$Keys$B3 = {ctor: 'B3'};
-var _user$project$Keys$AS3 = {ctor: 'AS3'};
-var _user$project$Keys$A3 = {ctor: 'A3'};
-var _user$project$Keys$GS3 = {ctor: 'GS3'};
-var _user$project$Keys$G3 = {ctor: 'G3'};
-var _user$project$Keys$FS3 = {ctor: 'FS3'};
-var _user$project$Keys$F3 = {ctor: 'F3'};
-var _user$project$Keys$E3 = {ctor: 'E3'};
-var _user$project$Keys$DS3 = {ctor: 'DS3'};
-var _user$project$Keys$D3 = {ctor: 'D3'};
-var _user$project$Keys$CS3 = {ctor: 'CS3'};
 var _user$project$Keys$C3 = {ctor: 'C3'};
+var _user$project$Keys$B2 = {ctor: 'B2'};
+var _user$project$Keys$AS2 = {ctor: 'AS2'};
+var _user$project$Keys$A2 = {ctor: 'A2'};
+var _user$project$Keys$GS2 = {ctor: 'GS2'};
+var _user$project$Keys$G2 = {ctor: 'G2'};
+var _user$project$Keys$FS2 = {ctor: 'FS2'};
+var _user$project$Keys$F2 = {ctor: 'F2'};
+var _user$project$Keys$E2 = {ctor: 'E2'};
+var _user$project$Keys$DS2 = {ctor: 'DS2'};
+var _user$project$Keys$D2 = {ctor: 'D2'};
+var _user$project$Keys$CS2 = {ctor: 'CS2'};
+var _user$project$Keys$C2 = {ctor: 'C2'};
 var _user$project$Keys$keyCodeToKey = _elm_lang$core$Dict$fromList(
 	_elm_lang$core$Native_List.fromArray(
 		[
-			{ctor: '_Tuple2', _0: 65, _1: _user$project$Keys$C3},
-			{ctor: '_Tuple2', _0: 87, _1: _user$project$Keys$CS3},
-			{ctor: '_Tuple2', _0: 83, _1: _user$project$Keys$D3},
-			{ctor: '_Tuple2', _0: 69, _1: _user$project$Keys$DS3},
-			{ctor: '_Tuple2', _0: 68, _1: _user$project$Keys$E3},
-			{ctor: '_Tuple2', _0: 70, _1: _user$project$Keys$F3},
-			{ctor: '_Tuple2', _0: 84, _1: _user$project$Keys$FS3},
-			{ctor: '_Tuple2', _0: 71, _1: _user$project$Keys$G3},
-			{ctor: '_Tuple2', _0: 89, _1: _user$project$Keys$GS3},
-			{ctor: '_Tuple2', _0: 72, _1: _user$project$Keys$A3},
-			{ctor: '_Tuple2', _0: 85, _1: _user$project$Keys$AS3},
-			{ctor: '_Tuple2', _0: 74, _1: _user$project$Keys$B3},
-			{ctor: '_Tuple2', _0: 75, _1: _user$project$Keys$C4},
-			{ctor: '_Tuple2', _0: 79, _1: _user$project$Keys$CS4},
-			{ctor: '_Tuple2', _0: 76, _1: _user$project$Keys$D4}
+			{ctor: '_Tuple2', _0: 65, _1: _user$project$Keys$C2},
+			{ctor: '_Tuple2', _0: 87, _1: _user$project$Keys$CS2},
+			{ctor: '_Tuple2', _0: 83, _1: _user$project$Keys$D2},
+			{ctor: '_Tuple2', _0: 69, _1: _user$project$Keys$DS2},
+			{ctor: '_Tuple2', _0: 68, _1: _user$project$Keys$E2},
+			{ctor: '_Tuple2', _0: 70, _1: _user$project$Keys$F2},
+			{ctor: '_Tuple2', _0: 84, _1: _user$project$Keys$FS2},
+			{ctor: '_Tuple2', _0: 71, _1: _user$project$Keys$G2},
+			{ctor: '_Tuple2', _0: 89, _1: _user$project$Keys$GS2},
+			{ctor: '_Tuple2', _0: 72, _1: _user$project$Keys$A2},
+			{ctor: '_Tuple2', _0: 85, _1: _user$project$Keys$AS2},
+			{ctor: '_Tuple2', _0: 74, _1: _user$project$Keys$B2},
+			{ctor: '_Tuple2', _0: 75, _1: _user$project$Keys$C3}
 		]));
 var _user$project$Keys$fromKeyCode = function (keyCode) {
 	return A2(_elm_lang$core$Dict$get, keyCode, _user$project$Keys$keyCodeToKey);
@@ -9963,7 +9955,7 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 					return A2(_user$project$Cell$init, cell_id, 3);
 				},
 				total_cells),
-			'HH Closed',
+			'HH 1',
 			'/samples/hh-big.wav'),
 			A4(
 			_user$project$Track$init,
@@ -9974,19 +9966,8 @@ var _user$project$Track$defaultTracks = function (total_cells) {
 					return A2(_user$project$Cell$init, cell_id, 4);
 				},
 				total_cells),
-			'HH Open',
-			'/samples/hh-small.wav'),
-			A4(
-			_user$project$Track$init,
-			5,
-			A2(
-				_elm_lang$core$List$map,
-				function (cell_id) {
-					return A2(_user$project$Cell$init, cell_id, 5);
-				},
-				total_cells),
-			'Sample',
-			'/samples/its_alive.wav')
+			'HH 2',
+			'/samples/hh-small.wav')
 		]);
 };
 var _user$project$Track$Track = F4(
@@ -10497,6 +10478,74 @@ var _user$project$Main$PlaySynth = function (a) {
 };
 var _user$project$Main$Stop = {ctor: 'Stop'};
 var _user$project$Main$Play = {ctor: 'Play'};
+var _user$project$Main$NoOp = {ctor: 'NoOp'};
+var _user$project$Main$bass_key_down = function (maybeKey) {
+	var onKeyDown = F2(
+		function (currentKey, keyCode) {
+			return _elm_lang$core$Native_Utils.eq(
+				_user$project$Keys$fromKeyCode(keyCode),
+				currentKey) ? _user$project$Main$NoOp : _user$project$Main$PlaySynth(
+				_user$project$Keys$fromKeyCode(keyCode));
+		});
+	return _elm_lang$keyboard$Keyboard$downs(
+		onKeyDown(maybeKey));
+};
+var _user$project$Main$base_key_up = function (maybeKey) {
+	var onKeyUp = F2(
+		function (currentKeyCode, keyCode) {
+			return _elm_lang$core$Native_Utils.eq(
+				_user$project$Keys$fromKeyCode(keyCode),
+				_elm_lang$core$Maybe$Just(currentKeyCode)) ? _user$project$Main$PlaySynth(_elm_lang$core$Maybe$Nothing) : _user$project$Main$NoOp;
+		});
+	var _p16 = maybeKey;
+	if (_p16.ctor === 'Nothing') {
+		return _elm_lang$core$Platform_Sub$none;
+	} else {
+		return _elm_lang$keyboard$Keyboard$ups(
+			onKeyUp(_p16._0));
+	}
+};
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg),
+				_user$project$Main$bass_key_down(model.current_key),
+				_user$project$Main$base_key_up(model.current_key)
+			]));
+};
+var _user$project$Main$PlaySound = function (a) {
+	return {ctor: 'PlaySound', _0: a};
+};
+var _user$project$Main$pads = function (track) {
+	return A2(
+		_elm_lang$html$Html$td,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn'),
+						_elm_lang$html$Html_Events$onClick(
+						_user$project$Main$PlaySound(track.sample_file))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$span,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-play')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[]))
+					])),
+				_elm_lang$html$Html$text(track.name)
+			]));
+};
 var _user$project$Main$buttons = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -10593,6 +10642,18 @@ var _user$project$Main$buttons = function (model) {
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[]))
+					])),
+				A2(
+				_elm_lang$html$Html$button,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('btn btn-warning'),
+						_elm_lang$html$Html_Events$onClick(
+						_user$project$Main$PlaySound('/samples/its_alive.wav'))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('!!!')
 					]))
 			]));
 };
@@ -10609,42 +10670,6 @@ var _user$project$Main$view = function (model) {
 				_user$project$Main$buttons(model)
 			]));
 };
-var _user$project$Main$NoOp = {ctor: 'NoOp'};
-var _user$project$Main$bass_key_down = function (maybeKey) {
-	var onKeyDown = F2(
-		function (currentKey, keyCode) {
-			return _elm_lang$core$Native_Utils.eq(
-				_user$project$Keys$fromKeyCode(keyCode),
-				currentKey) ? _user$project$Main$NoOp : _user$project$Main$PlaySynth(
-				_user$project$Keys$fromKeyCode(keyCode));
-		});
-	return _elm_lang$keyboard$Keyboard$downs(
-		onKeyDown(maybeKey));
-};
-var _user$project$Main$base_key_up = function (maybeKey) {
-	var onKeyUp = F2(
-		function (currentKeyCode, keyCode) {
-			return _elm_lang$core$Native_Utils.eq(
-				_user$project$Keys$fromKeyCode(keyCode),
-				_elm_lang$core$Maybe$Just(currentKeyCode)) ? _user$project$Main$PlaySynth(_elm_lang$core$Maybe$Nothing) : _user$project$Main$NoOp;
-		});
-	var _p16 = maybeKey;
-	if (_p16.ctor === 'Nothing') {
-		return _elm_lang$core$Platform_Sub$none;
-	} else {
-		return _elm_lang$keyboard$Keyboard$ups(
-			onKeyUp(_p16._0));
-	}
-};
-var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$Main$PhoenixMsg),
-				_user$project$Main$bass_key_down(model.current_key),
-				_user$project$Main$base_key_up(model.current_key)
-			]));
-};
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$programWithFlags(
 		{init: _user$project$Main$init, subscriptions: _user$project$Main$subscriptions, update: _user$project$Main$update, view: _user$project$Main$view}),
@@ -10655,38 +10680,6 @@ var _user$project$Main$main = {
 			return _elm_lang$core$Json_Decode$succeed(
 				{jam_id: jam_id});
 		})
-};
-var _user$project$Main$PlaySound = function (a) {
-	return {ctor: 'PlaySound', _0: a};
-};
-var _user$project$Main$pads = function (track) {
-	return A2(
-		_elm_lang$html$Html$td,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$button,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('btn'),
-						_elm_lang$html$Html_Events$onClick(
-						_user$project$Main$PlaySound(track.sample_file))
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						A2(
-						_elm_lang$html$Html$span,
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$class('glyphicon glyphicon-play')
-							]),
-						_elm_lang$core$Native_List.fromArray(
-							[]))
-					])),
-				_elm_lang$html$Html$text(track.name)
-			]));
 };
 
 var Elm = {};

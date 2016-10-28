@@ -1,12 +1,15 @@
-<div class="pull-right">
-<%= render "form.html", changeset: @changeset, action: jam_path(@conn, :create), class: "right" %>
-</div>
-<div class="clearfix"></div>
-
 <div class="row">
-<%= for jam <- @jams do %>
-  <div class="col-xs-6 col-md-3">
-    <%= link "Jam #{jam.id}", to: jam_path(@conn, :show, jam), class: "btn thumbnail jam-tile" %>
+  <div class="col-sm-12">
+    <%= render "form.html", changeset: @changeset, action: jam_path(@conn, :create), class: "right" %>
   </div>
-<% end %>
+  <%= for jam <- @jams do %>
+  <div class="col-md-3 col-sm-6">
+    <div class="jam-tile">
+    <%= link to: jam_path(@conn, :show, jam), class: "btn btn-default" do %>
+      <i class="glyphicon glyphicon-music"></i>
+      <%= "Join Jam Room #{jam.id}" %>
+    <% end %>
+  </div>
+  </div>
+  <% end %>
 </div>
