@@ -1,4 +1,4 @@
-# BadMammaJamma
+# Jam
 
 To start:
 
